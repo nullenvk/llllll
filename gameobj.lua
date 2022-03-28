@@ -25,6 +25,10 @@ end
 function GameObj:draw()
 end
 
-function GameObj:update()
+function GameObj:update(_)
     error("update method not defined for a game object")
+end
+
+function GameObj:destroyObj()
+    self.runStatus = GAMEOBJ_STATUS_GARBAGE
 end
