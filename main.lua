@@ -1,13 +1,17 @@
 require('gameobj')
 require('player')
 require('scene')
+require('letterbox')
 
 function love.load()
+    local winW, winH = 1280, 720
+
+    LetterboxInit(winW, winH)
+    love.window.setMode(winW, winH) -- may fail
+
     Player.preload()
 
     Scene[LAYERNUM_ENTS]["player"] = Player:new()
-    Scene[LAYERNUM_ENTS]["player"].spriteFlipX = true
-    Scene[LAYERNUM_ENTS]["player"].spriteFlipY = true
 end
 
 function love.update(dt)
@@ -25,8 +29,14 @@ function love.update(dt)
 end
 
 function love.draw()
+    LetterboxStart()
+
+    love.graphics.rectangle("fill", 0, 0, 800, 600)
+
     -- Draw objects layer by layer
     for _,sceneObjs in ipairs(Scene) do
         for _,v in pairs(sceneObjs) do v:runDraw() end
     end
+
+    LetterboxFinish()
 end

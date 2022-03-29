@@ -13,3 +13,4 @@ Aspect ratio is constant (4:3)
 # Gameplay
 
 The map is a big grid consisting of "screens".
+Default screen size: 800x600

@@ -24,8 +24,10 @@ end
 function Sprite:draw()
     if self.texture == nil then error("Tried to draw a sprite without a loaded texture") end
 
-    local scaleX = self.spriteFlipX and -1 or 1
-    local scaleY = self.spriteFlipY and -1 or 1
+    local posScale
+
+    local flipScaleX = self.spriteFlipX and -1 or 1
+    local flipScaleY = self.spriteFlipY and -1 or 1
     local offsetX = self.spriteFlipX and self.texture:getWidth() or 0
     local offsetY = self.spriteFlipY and self.texture:getHeight() or 0
 
