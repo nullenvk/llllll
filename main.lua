@@ -1,13 +1,16 @@
 require('gameobj')
 require('player')
 
-sceneObjs = {}
+local sceneObjs = {}
 
 function love.load()
-    table.insert(sceneObjs, Player:new())
+    Player.preload()
+
+    sceneObjs["player"] = Player:new()
 end
 
 function love.update(dt)
+    -- Run updates on all objects
     for k,v in pairs(sceneObjs) do 
         v:runUpdate(dt)
         
