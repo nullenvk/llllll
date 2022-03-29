@@ -21,7 +21,7 @@ function Player:update(dt)
 
     local winW, winH = love.graphics.getDimensions()
     local texW, texH = self.texture:getDimensions()
-    local trigT = self.timer * 5
+    local trigT = self.timer * 1
 
     self.screenPos.x = math.sin(trigT) * 400 + winW/2 - texW/2
     self.screenPos.y = math.cos(trigT) * 300 + winH/2 - texH/2
