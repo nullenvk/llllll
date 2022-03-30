@@ -48,3 +48,15 @@ function LetterboxFinish()
 
     love.graphics.setColor(r,g,b,a)
 end
+
+function LetterboxViewW()
+    return viewW
+end
+
+function LetterboxViewH()
+    return viewH
+end
+
+function LetterboxViewDim()
+    return viewW, viewH
+end
