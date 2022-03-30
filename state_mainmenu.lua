@@ -3,7 +3,6 @@ require('state_game')
 
 State_MainMenu = GameState:new({})
 
-local ACTION_DELAY = 0.15
 local MENUFONT_SIZE = 30
 local MENU_TEXTS = {
     "<Start>",
@@ -12,6 +11,7 @@ local MENU_TEXTS = {
 }
 
 local menuState
+local newState = nil
 
 function State_MainMenu:init()
     menuState = {}
@@ -19,7 +19,6 @@ function State_MainMenu:init()
     menuState.mainFont = love.graphics.newFont(MENUFONT_SIZE)
 
     menuState.mainTimer = 0
-    menuState.actionTimer = 0
     menuState.curMainOption = 1
 end
 
@@ -36,45 +35,32 @@ end
 local function activateSelOption()
     if menuState.curMainOption == 1 then
         -- Launch game here
-        return State_Game
+        newState = State_Game
 
     elseif menuState.curMainOption == 3 then
         love.event.quit()
     end
-
-    return nil
 end
 
 function State_MainMenu:update(dt)
-    local newState = nil
     menuState.mainTimer = menuState.mainTimer + dt
-
-    if menuState.mainTimer - menuState.actionTimer > ACTION_DELAY then
-        if love.keyboard.isDown("right") then
-            mainmenuNextOpt()
-            menuState.actionTimer = menuState.mainTimer
-        end
-
-        if love.keyboard.isDown("left") then
-            mainmenuPrevOpt()
-            menuState.actionTimer = menuState.mainTimer
-        end
-
-        if love.keyboard.isDown("return") then
-            newState = activateSelOption()
-            menuState.actionTimer = menuState.mainTimer
-        end
-    end
-
     return newState
+end
+
+function State_MainMenu:keypressed(key, scancode, isrepeat)
+    if isrepeat then return end
+
+    if key == "right" then mainmenuNextOpt()
+    elseif key == "left" then mainmenuPrevOpt()
+    elseif key == "return" then activateSelOption() end
 end
 
 function State_MainMenu:draw()
     love.graphics.draw(menuState.bgText, 0, 0)
-
     love.graphics.printf(MENU_TEXTS[menuState.curMainOption], menuState.mainFont, 0, 300 - MENUFONT_SIZE/2, 800, "center")
 end
 
 function State_MainMenu:fini()
     menuState = nil
+    newState = nil
 end

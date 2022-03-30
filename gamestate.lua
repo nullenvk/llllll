@@ -11,3 +11,4 @@ function GameState:init() end
 function GameState:fini() end
 function GameState:update(_) end -- Accepts deltaTime, normally returns nil, returns another GameState when a switch occurs
 function GameState:draw() end
+function GameState:keypressed(key, scancode, isrepeat) end

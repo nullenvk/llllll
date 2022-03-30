@@ -58,3 +58,7 @@ function State_Game:fini()
 
     Player.free()
 end
+
+function GameState:keypressed(key, scancode, isrepeat)
+
+end

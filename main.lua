@@ -22,6 +22,10 @@ function love.update(dt)
     end
 end
 
+function love.keypressed(key, scancode, isrepeat)
+    curGameState:keypressed(key, scancode, isrepeat)
+end
+
 function love.draw()
     LetterboxStart()
 
