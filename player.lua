@@ -14,6 +14,10 @@ function Player.preload()
     Player:loadTexture(TEXTURE_PATH_PLAYER)
 end
 
+function Player.free()
+    Player.texture = nil
+end
+
 function Player:update(dt)
     Sprite.update(self)
 
