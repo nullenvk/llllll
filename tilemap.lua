@@ -1,5 +1,5 @@
-TILESCREEN_W = 40
-TILESCREEN_H = 30
+TILESCREEN_W = 8
+TILESCREEN_H = 6
 
 TileMap = {mapW = 0, mapH = 0, screens = {}}
 
@@ -51,7 +51,21 @@ local function parseMetadata(sct)
 end
 
 local function parseScreen(sct)
+    local tiles = {}
 
+    for _=1,TILESCREEN_W do
+        table.insert(tiles, {})
+    end
+
+    for i=1,TILESCREEN_H do
+        for j=1, TILESCREEN_W do
+            tiles[j][i] = sct[i][j]
+        end
+    end
+
+    -- Idea: maybe add optionl data after reading tiles?
+
+    return tiles
 end
 
 function TileMap:loadFile(path)
@@ -62,7 +76,16 @@ function TileMap:loadFile(path)
     -- read metadata
     self.mapW, self.mapH = parseMetadata(fSections[1])
 
+    -- initialize screens table
+    for i=1,self.mapW+1 do
+        table.insert(self.screens, {})
+    end
+
+    -- read all screens
     for i=2,#fSections do
-        table.insert(self.screens, parseScreen(fSections[i]))
+        local x = 1 + ((i - 2) % self.mapW)
+        local y = 1 + math.floor((i - 2) / self.mapH)
+
+        self.screens[x][y] = parseScreen(fSections[i])
     end
 end
