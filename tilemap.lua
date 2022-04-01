@@ -50,6 +50,10 @@ local function parseMetadata(sct)
     return mapW, mapH
 end
 
+local function parseScreen(sct)
+
+end
+
 function TileMap:loadFile(path)
     local fDat, fSize = love.filesystem.read(path)
     if fDat == nil then error("Failed to open a tilemap file") end
@@ -58,4 +62,7 @@ function TileMap:loadFile(path)
     -- read metadata
     self.mapW, self.mapH = parseMetadata(fSections[1])
 
+    for i=2,#fSections do
+        table.insert(self.screens, parseScreen(fSections[i]))
+    end
 end
