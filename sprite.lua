@@ -31,5 +31,6 @@ function Sprite:draw()
     local offsetX = self.spriteFlipX and self.texture:getWidth() or 0
     local offsetY = self.spriteFlipY and self.texture:getHeight() or 0
 
+    love.graphics.setColor(1,1,1)
     love.graphics.draw(self.texture, self.screenPos.x + offsetX, self.screenPos.y + offsetY, 0, scaleX, scaleY)
 end

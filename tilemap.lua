@@ -1,5 +1,5 @@
-TILESCREEN_W = 8
-TILESCREEN_H = 6
+TILESCREEN_W = 32
+TILESCREEN_H = 24
 
 TileMap = {mapW = 0, mapH = 0, screens = {}}
 
@@ -53,17 +53,19 @@ end
 local function parseScreen(sct)
     local tiles = {}
 
+    -- TODO: Instead of single characters, make tiles numbers separated by ;
+
     for _=1,TILESCREEN_W do
         table.insert(tiles, {})
     end
 
     for i=1,TILESCREEN_H do
         for j=1, TILESCREEN_W do
-            tiles[j][i] = sct[i][j]
+            tiles[j][i] = sct[i]:sub(j,j)
         end
     end
 
-    -- Idea: maybe add optionl data after reading tiles?
+    -- Idea: maybe add optional data after reading tiles?
 
     return tiles
 end
