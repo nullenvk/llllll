@@ -1,6 +1,7 @@
 require('gamestate')
 require('sprite')
 require('player')
+require('tilemap')
 
 State_Game = GameState:new({})
 
@@ -15,6 +16,8 @@ local Scene = {}
 function State_Game:init()
     Scene = {}
     for _=1,LAYERNUM_NUM do table.insert(Scene, {}) end
+
+    local tileMap = TileMap:new(nil, "res/main.map")
 
     Player.preload()
     Scene[LAYERNUM_ENTS]["player"] = Player:new()
