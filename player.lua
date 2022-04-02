@@ -11,16 +11,22 @@ Player = Sprite:new({
 
     pos = {x = 0, y = 0},
     vel = {x = 0, y = 0},
+    size = {w = 0, y = 0},
 
     -- Controls
     moveDir = 0, -- -1 left, +1 right
     gravFlip = false, -- false means fall down
+    facingSide = false, -- false means left
 })
 
 function Player:new(o)
     o = o or Sprite:new(o)
     setmetatable(o, self)
     self.__index = self
+
+    local tw, th = Player.texture:getDimensions()
+    o.size = {w = tw, h = th}
+
     return o
 end
 
@@ -38,16 +44,25 @@ function Player:update(dt)
     self.timer = self.timer + dt
     self.physTimer = self.physTimer + dt
 
-    --local texW, texH = self.texture:getDimensions()
-    --local trigT = self.timer * 1
-    --self.screenPos.x = math.sin(trigT) * 400 + 400 - texW/2
-    --self.screenPos.y = math.cos(trigT) * 300 + 300 - texH/2
+    -- Gravity flipping
+    self.spriteFlipY = self.gravFlip
 
+    -- Movement
     self.moveDir = 0
     if love.keyboard.isDown("a") ~= love.keyboard.isDown("d") then
         self.moveDir = love.keyboard.isDown("a") and -1 or 1
     end
 
+    -- Horizontal flipping
+    if self.moveDir == 1 then
+        self.facingSide = true
+    elseif self.moveDir == -1 then
+        self.facingSide = false
+    end
+
+    self.spriteFlipX = not self.facingSide
+
+    -- Physics
     while self.physTimer > PHYS_UPDATE_FREQ do
         self:updatePhys()
         self.physTimer = self.physTimer - PHYS_UPDATE_FREQ
@@ -85,4 +100,8 @@ function Player:updatePhys()
     self.vel.y = clampVal(self.vel.x, -SPEED_MAX, SPEED_MAX)
 
     self.pos.x = self.pos.x + self.vel.x * PHYS_UPDATE_FREQ
+end
+
+function Player:doFlip()
+    self.gravFlip = not self.gravFlip
 end

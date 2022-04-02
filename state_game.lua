@@ -59,6 +59,8 @@ function State_Game:init()
 
     Player.preload()
     curScene[LAYERNUM_ENTS]["player"] = Player:new()
+    curScene[LAYERNUM_ENTS]["player"].pos = {x = 400, y = 300}
+
     curScene[LAYERNUM_MAP]["tiles"] = ObjTiles:new(nil, screenPos.x, screenPos.y)
 end
 
@@ -105,6 +107,11 @@ function State_Game:fini()
     Player.free()
 end
 
-function GameState:keypressed(key, scancode, isrepeat)
+function GameState:keypressed(key, _, isrepeat)
+    local player = curScene[LAYERNUM_ENTS]["player"]
+    if player == nil then return end
 
+    if key == "space" and not isrepeat then
+        player:doFlip()
+    end
 end
