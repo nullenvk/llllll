@@ -14,6 +14,7 @@ local LAYERNUM_NUM = 4
 local curScene = {}
 local tmap = nil
 local screenPos = nil
+local playerObj = nil
 
 ObjTiles = GameObj:new({dat = nil})
 
@@ -58,8 +59,9 @@ function State_Game:init()
     screenPos = {x = 1, y = 1}
 
     Player.preload()
-    curScene[LAYERNUM_ENTS]["player"] = Player:new()
-    curScene[LAYERNUM_ENTS]["player"].pos = {x = 400, y = 300}
+    playerObj = Player:new()
+    playerObj.pos = {x = 400, y = 300}
+    curScene[LAYERNUM_ENTS]["player"] = playerObj
 
     curScene[LAYERNUM_MAP]["tiles"] = ObjTiles:new(nil, screenPos.x, screenPos.y)
 end
@@ -90,6 +92,13 @@ function State_Game:update(dt)
         end
     end
 
+    -- Physics
+    while playerObj.physTimer > PHYS_UPDATE_FREQ do
+        playerObj:updatePhys(curScene[LAYERNUM_MAP]["tiles"])
+        playerObj.physTimer = playerObj.physTimer - PHYS_UPDATE_FREQ
+    end
+
+    -- Inputs
     if love.keyboard.isDown("escape") then newState = State_MainMenu end
 
     return newState
@@ -103,6 +112,7 @@ function State_Game:fini()
     curScene = nil
     tmap = nil
     screenPos = nil
+    playerObj = nil
 
     Player.free()
 end
