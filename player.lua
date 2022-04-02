@@ -105,3 +105,31 @@ end
 function Player:doFlip()
     self.gravFlip = not self.gravFlip
 end
+
+local function checkIntersectAABB(rect1, rect2)
+    local function genRectVerts(tr)
+        return {
+            {x = tr.x, y = tr.y},
+            {x = tr.x + tr.w, y = tr.y},
+            {x = tr.x, y = tr.y + tr.y},
+            {x = tr.x + tr.w, y = tr.y + tr.y},
+        }
+    end
+
+    local function isPtInsideRect(pt, rect)
+        return pt.x >= rect.x and pt.x <= rect.x + rect.w and
+                pt.y >= rect.y and pt.y <= rect.y + rect.h
+    end
+
+    local function checkPtsInRect(pts, rect)
+        for _,p in pairs(pts) do
+            if isPtInsideRect(p, rect) then return true end
+        end
+
+        return false
+    end
+
+    local rect1Pts, rect2Pts = genRectVerts(rect1), genRectVerts(rect2)
+
+    return checkPtsInRect(rect1Pts, rect2) or checkPtsInRect(rect2Pts, rect1)
+end
