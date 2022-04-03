@@ -58,12 +58,7 @@ function Player:update(dt)
     end
 
     -- Horizontal flipping
-    if self.moveDir == 1 then
-        self.facingSide = true
-    elseif self.moveDir == -1 then
-        self.facingSide = false
-    end
-
+    self.facingSide = self.moveDir == 1
     self.spriteFlipX = not self.facingSide
 
     self.screenPos.x = self.pos.x
@@ -83,9 +78,9 @@ end
 -- TODO: write this
 -- Returns true if obj should stop, false if should pass through
 function Player:reactCol(tiletype)
-    if tiletype == "0" then
-        return false
-    end
+    --if tiletype == "0" then
+    --    return false
+    --end
 
     return true
 end
@@ -137,13 +132,13 @@ local function colTestNarrow(r1, r2, dPos)
     yTimeStart = yDistStart/ math.abs(dPos.y)
     yTimeEnd = yDistEnd / math.abs(dPos.y)
 
-    if xTimeEnd > yTimeStart or yTimeEnd > xTimeStart then return false end
+    if xTimeStart > yTimeEnd or yTimeStart > xTimeEnd then return false end
 
     local timeStart = math.max(xTimeStart, yTimeStart)
     if timeStart < 0 or timeStart > 1 then return false end
 
     local firstHitX = false
-    if xTimeStart < yTimeStart then firstHitX = true end
+    if xTimeStart > yTimeStart then firstHitX = true end
 
     return true, timeStart, firstHitX
 end
@@ -155,20 +150,38 @@ function Player:runColTests(tilemap, dPos)
     local tileW, tileH = 800/TILESCREEN_W, 600/TILESCREEN_H
     local tilerect = {x = 0, y = 0, w = tileW, h = tileH}
 
-    for tx=1,#TILESCREEN_W do
-        for ty=1,#TILESCREEN_H do
+    local finHitTime = {2, 2}
+
+    for tx=1,TILESCREEN_W do
+        for ty=1,TILESCREEN_H do
             tilerect.x = (tx-1)*tileW
             tilerect.y = (ty-1)*tileH
 
             local didHit, whenHit, didHitX = colTestNarrow(plyRect, tilerect, dPos)
-            -- reactCol here
-            if didHit then
+            if didHit and tilemap.dat[tx][ty] ~= "0" then -- second option should normally be handled by broad phase
                 if self:reactCol(tilemap.dat[tx][ty]) then
-
+                    local hType = didHitX and 1 or 2
+                    finHitTime[hType] = math.min(finHitTime[hType], whenHit)
                 end
             end
         end
     end
+
+    local travTime = math.min(finHitTime[1], finHitTime[2])
+    local newPos = {x = self.pos.x + dPos.x, y = self.pos.y + dPos.y}
+    if finHitTime[2] < 2 then
+        newPos.y = self.pos.y
+        self.vel.y = 0
+    end
+
+    if finHitTime[1] < 2 then
+        print(finHitTime[1])
+        newPos.x = self.pos.x
+        self.vel.x = 0
+    end
+
+
+    self.pos = newPos
 end
 
 function Player:updatePhys(tilemap)
@@ -196,12 +209,9 @@ function Player:updatePhys(tilemap)
     }
 
     self:runColTests(tilemap, dPos)
-
-    -- remember to change this here later
-    local newPos = {x = self.pos.x + dPos.x, y = self.pos.y + dPos.y}
-    self.pos = newPos
 end
 
 function Player:doFlip()
     self.gravFlip = not self.gravFlip
+    self.vel.y = 0
 end
