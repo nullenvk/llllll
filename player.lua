@@ -1,8 +1,12 @@
 require("sprite")
 
-local SPEED_MAX = 250
-local SIDE_ACCEL = 1000
-PHYS_UPDATE_FREQ = 1/60
+-- TODO: Make AABB collision detection here not awful
+
+local SPEED_MAX = 750
+local SIDE_ACCEL = 4000
+local GRAV_ACCEL = 3000
+
+PHYS_UPDATE_FREQ = 1/120
 local TEXTURE_PATH_PLAYER = "res/player.png"
 
 Player = Sprite:new({
@@ -76,6 +80,7 @@ local function clampVal(x, min, max)
     end
 end
 
+-- TODO: replace this with the Minkowski sum method
 local function checkIntersectAABB(rect1, rect2)
     local function genRectVerts(tr)
         return {
@@ -103,22 +108,26 @@ local function checkIntersectAABB(rect1, rect2)
     return checkPtsInRect(rect1Pts, rect2) or checkPtsInRect(rect2Pts, rect1)
 end
 
-function Player:testCollisionTile(tilemap, x, y)
+local function testCollisionTile(tilemap, x, y, px, py, psize)
     if tilemap.dat[x][y] ~= "0" then
         local tileW, tileH = 800/TILESCREEN_W, 600/TILESCREEN_H
-        local playerRect = {x = self.pos.x, y = self.pos.y, w = self.size.w, h = self.size.h}
+        local playerRect = {x = px, y = py, w = psize.w, h = psize.h}
         local tileRect = {x = (x-1)*tileW, y = (y-1)*tileH, w = tileW, h = tileH}
 
         if checkIntersectAABB(playerRect, tileRect) then
-            print(x, y, math.random())
+            return true
         end
     end
+
+    return false
 end
 
 function Player:updatePhys(tilemap)
     -- Idea: Maybe zero out velocity when player tries to move to the opposite of current velocity
 
+    local gravDir = self.gravFlip and 1 or -1
     self.vel.x = self.vel.x + PHYS_UPDATE_FREQ * self.moveDir * SIDE_ACCEL
+    --self.vel.y = self.vel.y + PHYS_UPDATE_FREQ * gravDir * GRAV_ACCEL
 
     -- Brake when not moving
     if self.moveDir == 0 then
@@ -130,16 +139,10 @@ function Player:updatePhys(tilemap)
     end
 
     self.vel.x = clampVal(self.vel.x, -SPEED_MAX, SPEED_MAX)
-    self.vel.y = clampVal(self.vel.x, -SPEED_MAX, SPEED_MAX)
+    self.vel.y = clampVal(self.vel.y, -SPEED_MAX, SPEED_MAX)
 
     self.pos.x = self.pos.x + self.vel.x * PHYS_UPDATE_FREQ
-
-    -- DEBUG: Test intersections with the tilemap
-    for x=1,TILESCREEN_W do
-        for y=1,TILESCREEN_H do
-            self:testCollisionTile(tilemap, x, y)
-        end
-    end
+    self.pos.y = self.pos.y + self.vel.y * PHYS_UPDATE_FREQ
 end
 
 function Player:doFlip()
