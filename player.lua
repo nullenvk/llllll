@@ -80,46 +80,95 @@ local function clampVal(x, min, max)
     end
 end
 
--- TODO: replace this with the Minkowski sum method
-local function checkIntersectAABB(rect1, rect2)
-    local function genRectVerts(tr)
-        return {
-            {x = tr.x, y = tr.y},
-            {x = tr.x + tr.w, y = tr.y},
-            {x = tr.x, y = tr.y + tr.h},
-            {x = tr.x + tr.w, y = tr.y + tr.h},
-        }
-    end
-
-    local function isPtInsideRect(pt, rect)
-        return pt.x >= rect.x and pt.x <= rect.x + rect.w and pt.y >= rect.y and pt.y <= rect.y + rect.h
-    end
-
-    local function checkPtsInRect(pts, rect)
-        for _,p in pairs(pts) do
-            if isPtInsideRect(p, rect) then return true end
-        end
-
+-- TODO: write this
+-- Returns true if obj should stop, false if should pass through
+function Player:reactCol(tiletype)
+    if tiletype == "0" then
         return false
     end
 
-    local rect1Pts, rect2Pts = genRectVerts(rect1), genRectVerts(rect2)
-
-    return checkPtsInRect(rect1Pts, rect2) or checkPtsInRect(rect2Pts, rect1)
+    return true
 end
 
-local function testCollisionTile(tilemap, x, y, px, py, psize)
-    if tilemap.dat[x][y] ~= "0" then
-        local tileW, tileH = 800/TILESCREEN_W, 600/TILESCREEN_H
-        local playerRect = {x = px, y = py, w = psize.w, h = psize.h}
-        local tileRect = {x = (x-1)*tileW, y = (y-1)*tileH, w = tileW, h = tileH}
+local function colTestNarrow(r1, r2, dPos)
+    local xDistStart, xDistEnd, yDistStart, yDistEnd
+    local xTimeStart, xTimeEnd, yTimeStart, yTimeEnd
 
-        if checkIntersectAABB(playerRect, tileRect) then
-            return true
+    -- X axis
+    if dPos.x == 0 then
+        if r1.x < r2.x + r2.w and r2.x < r1.x + r1.w then
+            xDistStart = -math.huge
+            xDistEnd = math.huge
+        else
+            return false
+        end
+    else
+        if dPos.x > 0 then
+            xDistStart = r2.x - (r1.x + r1.w)
+            xDistEnd = r2.x + r2.w - r1.x
+        else
+            xDistStart = r1.x - (r2.x + r2.w)
+            xDistEnd = r1.x + r1.w - r2.x
         end
     end
 
-    return false
+    -- Y axis
+    if dPos.y == 0 then
+        if r1.y < r2.y + r2.h and r2.y < r1.y + r1.h then
+            yDistStart = -math.huge
+            yDistEnd = math.huge
+        else
+            return false
+        end
+    else
+        if dPos.y > 0 then
+            yDistStart = r2.y - (r1.y + r1.h)
+            yDistEnd = r2.y + r2.h - r1.y
+        else
+            yDistStart = r1.y - (r2.y + r2.h)
+            yDistEnd = r1.y + r1.h - r2.y
+        end
+    end
+
+    -- Both
+    xTimeStart = xDistStart / math.abs(dPos.x)
+    xTimeEnd = xDistEnd / math.abs(dPos.x)
+
+    yTimeStart = yDistStart/ math.abs(dPos.y)
+    yTimeEnd = yDistEnd / math.abs(dPos.y)
+
+    if xTimeEnd > yTimeStart or yTimeEnd > xTimeStart then return false end
+
+    local timeStart = math.max(xTimeStart, yTimeStart)
+    if timeStart < 0 or timeStart > 1 then return false end
+
+    local firstHitX = false
+    if xTimeStart < yTimeStart then firstHitX = true end
+
+    return true, timeStart, firstHitX
+end
+
+function Player:runColTests(tilemap, dPos)
+    local plyRect = {x = self.pos.x, y = self.pos.y, w = self.size.w, h = self.size.h}
+
+    -- TODO: Write proper broad phase
+    local tileW, tileH = 800/TILESCREEN_W, 600/TILESCREEN_H
+    local tilerect = {x = 0, y = 0, w = tileW, h = tileH}
+
+    for tx=1,#TILESCREEN_W do
+        for ty=1,#TILESCREEN_H do
+            tilerect.x = (tx-1)*tileW
+            tilerect.y = (ty-1)*tileH
+
+            local didHit, whenHit, didHitX = colTestNarrow(plyRect, tilerect, dPos)
+            -- reactCol here
+            if didHit then
+                if self:reactCol(tilemap.dat[tx][ty]) then
+
+                end
+            end
+        end
+    end
 end
 
 function Player:updatePhys(tilemap)
@@ -127,7 +176,7 @@ function Player:updatePhys(tilemap)
 
     local gravDir = self.gravFlip and 1 or -1
     self.vel.x = self.vel.x + PHYS_UPDATE_FREQ * self.moveDir * SIDE_ACCEL
-    --self.vel.y = self.vel.y + PHYS_UPDATE_FREQ * gravDir * GRAV_ACCEL
+    self.vel.y = self.vel.y + PHYS_UPDATE_FREQ * gravDir * GRAV_ACCEL
 
     -- Brake when not moving
     if self.moveDir == 0 then
@@ -141,8 +190,16 @@ function Player:updatePhys(tilemap)
     self.vel.x = clampVal(self.vel.x, -SPEED_MAX, SPEED_MAX)
     self.vel.y = clampVal(self.vel.y, -SPEED_MAX, SPEED_MAX)
 
-    self.pos.x = self.pos.x + self.vel.x * PHYS_UPDATE_FREQ
-    self.pos.y = self.pos.y + self.vel.y * PHYS_UPDATE_FREQ
+    local dPos = {
+        x = self.vel.x * PHYS_UPDATE_FREQ,
+        y = self.vel.y * PHYS_UPDATE_FREQ
+    }
+
+    self:runColTests(tilemap, dPos)
+
+    -- remember to change this here later
+    local newPos = {x = self.pos.x + dPos.x, y = self.pos.y + dPos.y}
+    self.pos = newPos
 end
 
 function Player:doFlip()
