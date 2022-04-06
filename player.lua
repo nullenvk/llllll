@@ -169,17 +169,20 @@ function Player:runColTests(tilemap, dPos)
 
     local travTime = math.min(finHitTime[1], finHitTime[2])
     local newPos = {x = self.pos.x + dPos.x, y = self.pos.y + dPos.y}
-    if finHitTime[2] < 2 then
-        newPos.y = self.pos.y
-        self.vel.y = 0
-    end
 
-    if finHitTime[1] < 2 then
-        print(finHitTime[1])
+    local VERY_SMOL = 0.000001
+    if math.abs(finHitTime[1] - finHitTime[2]) < VERY_SMOL and finHitTime[1] < 2 and finHitTime[2] < 2 then
         newPos.x = self.pos.x
+        newPos.y = self.pos.y
         self.vel.x = 0
+        self.vel.y = 0
+    elseif finHitTime[2] < 2 then
+        self.vel.y = 0
+        newPos.y = self.pos.y
+    elseif finHitTime[1] < 2 then
+        self.vel.x = 0
+        newPos.x = self.pos.x
     end
-
 
     self.pos = newPos
 end
