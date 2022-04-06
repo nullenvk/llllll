@@ -75,16 +75,6 @@ local function clampVal(x, min, max)
     end
 end
 
--- TODO: write this
--- Returns true if obj should stop, false if should pass through
-function Player:reactCol(tiletype)
-    --if tiletype == "0" then
-    --    return false
-    --end
-
-    return true
-end
-
 local function colTestNarrow(r1, r2, dPos)
     local xDistStart, xDistEnd, yDistStart, yDistEnd
     local xTimeStart, xTimeEnd, yTimeStart, yTimeEnd
@@ -140,7 +130,20 @@ local function colTestNarrow(r1, r2, dPos)
     local firstHitX = false
     if xTimeStart > yTimeStart then firstHitX = true end
 
-    return true, timeStart, firstHitX
+    local vNormal = {x = 0, y = 0}
+
+    if xTimeStart > yTimeStart then
+        vNormal.x = dPos.x > 0 and -1 or 1
+    else
+        vNormal.y = dPos.y > 0 and -1 or 1
+    end
+
+    return true, timeStart, vNormal
+end
+
+local function isTileHitPossible(tilemap, tx, ty, normVec)
+    -- just lots of special cases
+    return tilemap.dat[tx + normVec.x][ty + normVec.y] == "0"
 end
 
 function Player:runColTests(tilemap, dPos)
@@ -157,29 +160,33 @@ function Player:runColTests(tilemap, dPos)
             tilerect.x = (tx-1)*tileW
             tilerect.y = (ty-1)*tileH
 
-            local didHit, whenHit, didHitX = colTestNarrow(plyRect, tilerect, dPos)
-            if didHit and tilemap.dat[tx][ty] ~= "0" then -- second option should normally be handled by broad phase
-                if self:reactCol(tilemap.dat[tx][ty]) then
-                    local hType = didHitX and 1 or 2
-                    finHitTime[hType] = math.min(finHitTime[hType], whenHit)
-                end
+            local didHit, whenHit, normVec = colTestNarrow(plyRect, tilerect, dPos)
+            if didHit and tilemap.dat[tx][ty] ~= "0" and isTileHitPossible(tilemap, tx, ty, normVec) then -- second option should normally be handled by broad phase
+                local hType = (normVec.x ~= 0) and 1 or 2
+                finHitTime[hType] = math.min(finHitTime[hType], whenHit)
             end
         end
     end
 
     local travTime = math.min(finHitTime[1], finHitTime[2])
     local newPos = {x = self.pos.x + dPos.x, y = self.pos.y + dPos.y}
+
     if finHitTime[2] < 2 then
         newPos.y = self.pos.y
         self.vel.y = 0
     end
 
     if finHitTime[1] < 2 then
-        print(finHitTime[1])
         newPos.x = self.pos.x
         self.vel.x = 0
     end
 
+    if finHitTime[1] < 2 and finHitTime[2] < 2 and math.abs(finHitTime[1] - finHitTime[2]) < 0.001 then
+        newPos.y = self.pos.y
+        self.vel.y = 0
+        newPos.x = self.pos.x
+        self.vel.x = 0
+    end
 
     self.pos = newPos
 end
