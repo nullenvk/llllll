@@ -181,13 +181,6 @@ function Player:runColTests(tilemap, dPos)
         self.vel.x = 0
     end
 
-    if finHitTime[1] < 2 and finHitTime[2] < 2 and math.abs(finHitTime[1] - finHitTime[2]) < 0.001 then
-        newPos.y = self.pos.y
-        self.vel.y = 0
-        newPos.x = self.pos.x
-        self.vel.x = 0
-    end
-
     self.pos = newPos
 end
 
