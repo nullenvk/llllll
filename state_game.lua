@@ -57,8 +57,6 @@ function State_Game:switchScreen(dx, dy)
     screenPos.x = screenPos.x + dx
     screenPos.y = screenPos.y + dy
 
-    print(screenPos.x, screenPos.y)
-
     if playerObj == nil then
         playerObj = Player:new()
         playerObj.pos = {x = 400, y = 300}
