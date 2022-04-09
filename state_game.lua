@@ -89,27 +89,39 @@ function State_Game:draw()
 end
 
 function State_Game:testScrSwitch()
+    local function unstuckPlayer(horz)
+        if horz then
+            playerObj.pos.y = playerObj.pos.y + (playerObj.gravFlip and -1 or 1)
+        else
+            --playerObj.pos.x = playerObj.pos.x + (playerObj.facingSide and -1 or 1)
+        end
+    end
+
     -- TODO: ugly code, change later
     local dx, dy = 0, 0
 
     if playerObj.pos.x > 800 then
         dx = 1
         playerObj.pos.x = 0
+        unstuckPlayer(true)
     end
 
     if playerObj.pos.x < 0 then
         playerObj.pos.x = 800
         dx = -1
+        unstuckPlayer(true)
     end
 
     if playerObj.pos.y > 600 then
-        playerObj.pos.x = 0
+        playerObj.pos.y = 0
         dy = 1
+        unstuckPlayer(false)
     end
 
     if playerObj.pos.y < 0 then
-        playerObj.pos.x = 600
+        playerObj.pos.y = 600
         dy = -1
+        unstuckPlayer(false)
     end
 
     if dx ~= 0 or dy ~= 0 then self:switchScreen(dx, dy) end
