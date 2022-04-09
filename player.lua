@@ -1,12 +1,12 @@
 require("sprite")
 
--- TODO: Make AABB collision detection here not awful
+-- TODO: Make AABB collision detection here not so awful
 
 local SPEED_MAX = 750
 local SIDE_ACCEL = 4000
 local GRAV_ACCEL = 3000
 
-PHYS_UPDATE_FREQ = 1/120
+PHYS_UPDATE_FREQ = 1/240
 local TEXTURE_PATH_PLAYER = "res/player.png"
 
 Player = Sprite:new({
@@ -127,8 +127,8 @@ local function colTestNarrow(r1, r2, dPos)
     local timeStart = math.max(xTimeStart, yTimeStart)
     if timeStart < 0 or timeStart > 1 then return false end
 
-    local firstHitX = false
-    if xTimeStart > yTimeStart then firstHitX = true end
+    --local firstHitX = false
+    --if xTimeStart > yTimeStart then firstHitX = true end
 
     local vNormal = {x = 0, y = 0}
 
@@ -142,8 +142,9 @@ local function colTestNarrow(r1, r2, dPos)
 end
 
 local function isTileHitPossible(tilemap, tx, ty, normVec)
-    -- just lots of special cases
-    return tilemap.dat[tx + normVec.x][ty + normVec.y] == "0"
+    -- just some special cases
+    local tdat = tilemap.dat[tx + normVec.x][ty + normVec.y]
+    return tdat == "0" or tdat == nil
 end
 
 function Player:runColTests(tilemap, dPos)
@@ -168,7 +169,7 @@ function Player:runColTests(tilemap, dPos)
         end
     end
 
-    local travTime = math.min(finHitTime[1], finHitTime[2])
+    --local travTime = math.min(finHitTime[1], finHitTime[2])
     local newPos = {x = self.pos.x + dPos.x, y = self.pos.y + dPos.y}
 
     if finHitTime[2] < 2 then
