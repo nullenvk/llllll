@@ -61,8 +61,8 @@ function State_Game:switchScreen(dx, dy)
         playerObj = Player:new()
         playerObj.pos = {x = 400, y = 300}
     else
-        if dx ~= 0 then playerObj.pos.x = 800 - playerObj.pos.x end
-        if dy ~= 0 then playerObj.pos.y = 600 - playerObj.pos.y end
+        --if dx ~= 0 then playerObj.pos.x = 800 - playerObj.pos.x end
+        --if dy ~= 0 then playerObj.pos.y = 600 - playerObj.pos.y end
     end
 
     curScene[LAYERNUM_MAP]["player"] = playerObj
@@ -91,10 +91,26 @@ end
 function State_Game:testScrSwitch()
     -- TODO: ugly code, change later
     local dx, dy = 0, 0
-    if playerObj.pos.x > 800 then dx = 1 end
-    if playerObj.pos.x < 0 then dx = -1 end
-    if playerObj.pos.y > 600 then dy = 1 end
-    if playerObj.pos.y < 0 then dy = -1 end
+
+    if playerObj.pos.x > 800 then
+        dx = 1
+        playerObj.pos.x = 0
+    end
+
+    if playerObj.pos.x < 0 then
+        playerObj.pos.x = 800
+        dx = -1
+    end
+
+    if playerObj.pos.y > 600 then
+        playerObj.pos.x = 0
+        dy = 1
+    end
+
+    if playerObj.pos.y < 0 then
+        playerObj.pos.x = 600
+        dy = -1
+    end
 
     if dx ~= 0 or dy ~= 0 then self:switchScreen(dx, dy) end
 end
