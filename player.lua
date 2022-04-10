@@ -21,6 +21,8 @@ Player = Sprite:new({
     moveDir = 0, -- -1 left, +1 right
     gravFlip = false, -- false means fall down
     facingSide = false, -- false means left
+
+    isOnGround = false,
 })
 
 function Player:new(o)
@@ -175,6 +177,10 @@ function Player:runColTests(tilemap, dPos)
     if finHitTime[2] < 2 then
         newPos.y = self.pos.y
         self.vel.y = 0
+        self.isOnGround = true
+    else
+        self.isOnGround = false
+
     end
 
     if finHitTime[1] < 2 then
@@ -213,6 +219,8 @@ function Player:updatePhys(tilemap)
 end
 
 function Player:doFlip()
-    self.gravFlip = not self.gravFlip
-    self.vel.y = 0
+    if self.isOnGround then
+        self.gravFlip = not self.gravFlip
+        self.vel.y = 0
+    end
 end
