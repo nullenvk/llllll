@@ -53,3 +53,7 @@ end
 function FadeEffect:reset()
     self.enabled = false
 end
+
+function FadeEffect:hasFinished()
+    return love.timer.getTime() - self.startTime > FADE_TIME
+end

@@ -21,9 +21,11 @@ function State_MainMenu:init()
     menuState.bgText = love.graphics.newImage("res/menubg.png")
     menuState.mainFont = love.graphics.newFont(MENUFONT_SIZE)
     menuState.introFade = FadeEffect:new(nil, true)
+    menuState.choiceFade = FadeEffect:new(nil, false)
 
     menuState.mainTimer = 0
     menuState.curMainOption = 1
+    menuState.optActivated = false
 
     menuState.introFade:start()
 end
@@ -38,7 +40,7 @@ local function mainmenuPrevOpt()
     if menuState.curMainOption == 0 then menuState.curMainOption = #MENU_TEXTS end
 end
 
-local function activateSelOption()
+local function processSelOption()
     if menuState.curMainOption == 1 then
         -- Launch game here
         newState = State_Game
@@ -48,15 +50,29 @@ local function activateSelOption()
     elseif menuState.curMainOption == 3 then
         love.event.quit()
     end
+
+    menuState.optActivated = false
+    menuState.choiceFade:reset()
+end
+
+local function activateSelOption()
+    menuState.optActivated = true
+    menuState.choiceFade:start()
 end
 
 function State_MainMenu:update(dt)
     menuState.mainTimer = menuState.mainTimer + dt
+
+    if menuState.optActivated and menuState.choiceFade:hasFinished() then
+        processSelOption()
+    end
+
     return newState
 end
 
 function State_MainMenu:keypressed(key, scancode, isrepeat)
     if isrepeat then return end
+    if menuState.optActivated then return end
 
     if key == "right" then mainmenuNextOpt()
     elseif key == "left" then mainmenuPrevOpt()
@@ -69,6 +85,7 @@ function State_MainMenu:draw()
     love.graphics.printf(MENU_TEXTS[menuState.curMainOption], menuState.mainFont, 0, 300 - MENUFONT_SIZE/2, 800, "center")
 
     menuState.introFade:draw()
+    menuState.choiceFade:draw()
 end
 
 function State_MainMenu:fini()
