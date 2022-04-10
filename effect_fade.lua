@@ -57,3 +57,7 @@ end
 function FadeEffect:hasFinished()
     return love.timer.getTime() - self.startTime > FADE_TIME
 end
+
+function FadeEffect:hasStarted()
+    return self.enabled
+end

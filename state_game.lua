@@ -4,6 +4,8 @@ require('player')
 require('tilemap')
 require('effect_fade')
 
+-- TODO: reorganize this code
+
 State_Game = GameState:new({})
 
 local LAYERNUM_BACKGROUND = 0
@@ -16,6 +18,7 @@ local tmap = nil
 local tilescrPos = nil
 local playerObj = nil
 local introFade = nil
+local exitFade = nil
 
 ObjTiles = GameObj:new({dat = nil})
 
@@ -80,6 +83,7 @@ function State_Game:init()
     self:switchScreen(0,0)
 
     introFade = FadeEffect:new(nil, true)
+    exitFade = FadeEffect:new(nil, false)
     introFade:start()
 end
 
@@ -94,6 +98,7 @@ function State_Game:draw()
 
     -- Effects
     introFade:draw()
+    exitFade:draw()
 end
 
 function State_Game:testScrSwitch()
@@ -135,7 +140,7 @@ function State_Game:testScrSwitch()
     if dx ~= 0 or dy ~= 0 then self:switchScreen(dx, dy) end
 end
 
-function State_Game:update(dt)
+function State_Game:updateNormal(dt)
     local newState = nil
 
     --Run updates on all oll objects in all layers
@@ -157,12 +162,27 @@ function State_Game:update(dt)
     end
 
     -- Inputs
-    if love.keyboard.isDown("escape") then newState = State_MainMenu end
     if love.keyboard.isDown("space") then playerObj:doFlip() end
 
     self:testScrSwitch()
 
     return newState
+end
+
+function State_Game:updateExiting()
+    if exitFade:hasFinished() then
+        return State_MainMenu
+    end
+
+    return nil
+end
+
+function State_Game:update(dt)
+    if not exitFade:hasStarted() then
+        return self:updateNormal(dt)
+    else
+        return self:updateExiting(dt)
+    end
 end
 
 function State_Game:fini()
@@ -174,9 +194,15 @@ function State_Game:fini()
     tmap = nil
     tilescrPos = nil
     playerObj = nil
+    introFade = nil
+    exitFade = nil
 
     Player.free()
+    FadeEffect.free()
 end
 
 function GameState:keypressed(key, _, isrepeat)
+    if key == "escape" and not exitFade:hasStarted() then
+        exitFade:start()
+    end
 end
