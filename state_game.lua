@@ -2,6 +2,7 @@ require('gamestate')
 require('sprite')
 require('player')
 require('tilemap')
+require('effect_fade')
 
 State_Game = GameState:new({})
 
@@ -12,8 +13,9 @@ local LAYERNUM_NUM = 2
 
 local curScene = {}
 local tmap = nil
-local screenPos = nil
+local tilescrPos = nil
 local playerObj = nil
+local introFade = nil
 
 ObjTiles = GameObj:new({dat = nil})
 
@@ -54,8 +56,8 @@ function State_Game:switchScreen(dx, dy)
     curScene = {}
     for _=1,LAYERNUM_NUM do table.insert(curScene, {}) end
 
-    screenPos.x = screenPos.x + dx
-    screenPos.y = screenPos.y + dy
+    tilescrPos.x = tilescrPos.x + dx
+    tilescrPos.y = tilescrPos.y + dy
 
     if playerObj == nil then
         playerObj = Player:new()
@@ -66,15 +68,19 @@ function State_Game:switchScreen(dx, dy)
     end
 
     curScene[LAYERNUM_MAP]["player"] = playerObj
-    curScene[LAYERNUM_MAP]["tiles"] = ObjTiles:new(nil, screenPos.x, screenPos.y)
+    curScene[LAYERNUM_MAP]["tiles"] = ObjTiles:new(nil, tilescrPos.x, tilescrPos.y)
 end
 
 function State_Game:init()
     tmap = TileMap:new(nil, "res/main.map")
+    FadeEffect.preload()
     Player.preload()
 
-    screenPos = {x = 1, y = 1}
+    tilescrPos = {x = 1, y = 1}
     self:switchScreen(0,0)
+
+    introFade = FadeEffect:new(nil, true)
+    introFade:start()
 end
 
 function State_Game:draw()
@@ -86,6 +92,8 @@ function State_Game:draw()
         for _,v in pairs(sceneObjs) do v:runDraw() end
     end
 
+    -- Effects
+    introFade:draw()
 end
 
 function State_Game:testScrSwitch()
@@ -93,7 +101,7 @@ function State_Game:testScrSwitch()
         if horz then
             playerObj.pos.y = playerObj.pos.y + (playerObj.gravFlip and -1 or 1)
         else
-            --playerObj.pos.x = playerObj.pos.x + (playerObj.facingSide and -1 or 1)
+            playerObj.pos.x = playerObj.pos.x + (playerObj.facingSide and -1 or 1)
         end
     end
 
@@ -150,6 +158,7 @@ function State_Game:update(dt)
 
     -- Inputs
     if love.keyboard.isDown("escape") then newState = State_MainMenu end
+    if love.keyboard.isDown("space") then playerObj:doFlip() end
 
     self:testScrSwitch()
 
@@ -163,17 +172,11 @@ function State_Game:fini()
 
     curScene = nil
     tmap = nil
-    screenPos = nil
+    tilescrPos = nil
     playerObj = nil
 
     Player.free()
 end
 
 function GameState:keypressed(key, _, isrepeat)
-    local player = curScene[LAYERNUM_MAP]["player"]
-    if player == nil then return end
-
-    if key == "space" and not isrepeat then
-        player:doFlip()
-    end
 end

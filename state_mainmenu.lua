@@ -1,5 +1,6 @@
 require('gamestate')
 require('state_game')
+require('effect_fade')
 
 State_MainMenu = GameState:new({})
 
@@ -14,12 +15,17 @@ local menuState
 local newState = nil
 
 function State_MainMenu:init()
+    FadeEffect.preload()
+
     menuState = {}
     menuState.bgText = love.graphics.newImage("res/menubg.png")
     menuState.mainFont = love.graphics.newFont(MENUFONT_SIZE)
+    menuState.introFade = FadeEffect:new(nil, true)
 
     menuState.mainTimer = 0
     menuState.curMainOption = 1
+
+    menuState.introFade:start()
 end
 
 local function mainmenuNextOpt()
@@ -37,6 +43,8 @@ local function activateSelOption()
         -- Launch game here
         newState = State_Game
 
+    -- debug
+    elseif menuState.curMainOption == 2 then
     elseif menuState.curMainOption == 3 then
         love.event.quit()
     end
@@ -59,9 +67,13 @@ function State_MainMenu:draw()
     love.graphics.setColor(1, 1, 1)
     love.graphics.draw(menuState.bgText, 0, 0)
     love.graphics.printf(MENU_TEXTS[menuState.curMainOption], menuState.mainFont, 0, 300 - MENUFONT_SIZE/2, 800, "center")
+
+    menuState.introFade:draw()
 end
 
 function State_MainMenu:fini()
     menuState = nil
     newState = nil
+
+    FadeEffect.free()
 end

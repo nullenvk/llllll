@@ -30,8 +30,7 @@ function Player:new(o)
     setmetatable(o, self)
     self.__index = self
 
-    local tw, th = Player.texture:getDimensions()
-    o.size = {w = tw, h = th}
+    o.size = self.spriteSize
 
     return o
 end
@@ -143,9 +142,12 @@ local function colTestNarrow(r1, r2, dPos)
     return true, timeStart, vNormal
 end
 
-local function isTileHitPossible(tilemap, tx, ty, normVec)
+local function isTileEmpty(tilemap, tx, ty, normVec)
     -- just some special cases
-    local tdat = tilemap.dat[tx + normVec.x][ty + normVec.y]
+    local tdatx = tilemap.dat[tx + normVec.x]
+    if tdatx == nil then return false end
+
+    local tdat = tdatx[ty + normVec.y]
     return tdat == "0" or tdat == nil
 end
 
@@ -164,7 +166,7 @@ function Player:runColTests(tilemap, dPos)
             tilerect.y = (ty-1)*tileH
 
             local didHit, whenHit, normVec = colTestNarrow(plyRect, tilerect, dPos)
-            if didHit and tilemap.dat[tx][ty] ~= "0" and isTileHitPossible(tilemap, tx, ty, normVec) then -- second option should normally be handled by broad phase
+            if didHit and tilemap.dat[tx][ty] ~= "0" and isTileEmpty(tilemap, tx, ty, normVec) then -- second option should normally be handled by broad phase
                 local hType = (normVec.x ~= 0) and 1 or 2
                 finHitTime[hType] = math.min(finHitTime[hType], whenHit)
             end
