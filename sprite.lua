@@ -1,24 +1,43 @@
 require('gameobj')
 Sprite = GameObj:new({
-    screenPos = {x = 0, y = 0},
+    spritePosX = 0,
+    spritePosY = 0,
     spriteFlipX = false,
     spriteFlipY = false,
+    spriteSub = 1,
 
     -- read only
-    texture = nil,
-    spriteSize = {w = 0, h = 0},
+    spriteTexture = nil,
+    spriteQuads = nil,
+    spriteSizeW = 0,
+    spriteSizeH = 0,
 })
 
 function Sprite:new(o)
     o = o or GameObj:new(o)
     setmetatable(o, self)
     self.__index = self
+
     return o
 end
 
-function Sprite:loadTexture(path)
+function Sprite:loadTexture(path, subspriteNum)
     self.texture = love.graphics.newImage(path)
-    self.spriteSize.w, self.spriteSize.h = self.texture:getDimensions()
+    local texW, texH = self.texture:getDimensions()
+
+    subspriteNum = subspriteNum or 1
+
+    self.spriteSizeW = texW / subspriteNum
+    self.spriteSizeH = texH
+    self.spriteSub = subspriteNum
+
+    self.spriteQuads = {}
+
+    local spriteW = self.spriteSizeW
+    for i=1,subspriteNum do
+        table.insert(self.spriteQuads,
+            love.graphics.newQuad(spriteW * (i-1), 0, spriteW, texH, texW, texH))
+    end
 end
 
 function Sprite:update(dt)
@@ -29,10 +48,16 @@ function Sprite:draw()
 
     local flipScaleX = self.spriteFlipX and -1 or 1
     local flipScaleY = self.spriteFlipY and -1 or 1
-    local offsetX = self.spriteFlipX and self.texture:getWidth() or 0
-    local offsetY = self.spriteFlipY and self.texture:getHeight() or 0
+    --local offsetX = self.spriteFlipX and self.texture:getWidth() or 0
+    --local offsetY = self.spriteFlipY and self.texture:getHeight() or 0
+    local offsetX = self.spriteFlipX and self.spriteSizeW or 0
+    local offsetY = self.spriteFlipY and self.spriteSizeH or 0
+    local curQuad = self.spriteQuads[self.spriteSub]
 
     love.graphics.setColor(1,1,1)
-    love.graphics.draw(self.texture, self.screenPos.x + offsetX, self.screenPos.y + offsetY, 0, flipScaleX, flipScaleY)
+    love.graphics.draw(self.texture, curQuad,
+        self.spritePosX + offsetX,
+        self.spritePosY + offsetY,
+        0, flipScaleX, flipScaleY)
 end
 

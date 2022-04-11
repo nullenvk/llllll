@@ -33,11 +33,11 @@ function FadeEffect:draw()
 
         if self.reversed then progress = 1 - progress end
 
-        self.screenPos.x = progress * (800 + self.spriteSize.w) - self.spriteSize.w
+        self.spritePosX = progress * (800 + self.spriteSizeW) - self.spriteSizeW
         Sprite.draw(self)
 
         love.graphics.setColor(0,0,0)
-        love.graphics.rectangle("fill", 0, 0, self.screenPos.x, 600)
+        love.graphics.rectangle("fill", 0, 0, self.spritePosX, 600)
     end
 end
 

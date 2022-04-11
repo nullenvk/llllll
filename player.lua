@@ -30,13 +30,17 @@ function Player:new(o)
     setmetatable(o, self)
     self.__index = self
 
-    o.size = self.spriteSize
+    o.size = {self.spriteSizeW, self.spriteSizeH}
 
     return o
 end
 
 function Player.preload()
-    Player:loadTexture(TEXTURE_PATH_PLAYER)
+    --Player:loadTexture(TEXTURE_PATH_PLAYER)
+
+    -- DEBUG
+    Player:loadTexture(TEXTURE_PATH_PLAYER, 2)
+    Player.spriteSub = 2
 end
 
 function Player.free()
@@ -59,11 +63,12 @@ function Player:update(dt)
     end
 
     -- Horizontal flipping
-    self.facingSide = self.moveDir == 1
-    self.spriteFlipX = not self.facingSide
+    if self.moveDir ~= 0 then
+        self.spriteFlipX = self.moveDir ~= 1
+    end
 
-    self.screenPos.x = self.pos.x
-    self.screenPos.y = self.pos.y
+    self.spritePosX = self.pos.x
+    self.spritePosY = self.pos.y
 end
 
 local function clampVal(x, min, max)
@@ -152,7 +157,7 @@ local function isTileEmpty(tilemap, tx, ty, normVec)
 end
 
 function Player:runColTests(tilemap, dPos)
-    local plyRect = {x = self.pos.x, y = self.pos.y, w = self.size.w, h = self.size.h}
+    local plyRect = {x = self.pos.x, y = self.pos.y, w = self.spriteSizeW, h = self.spriteSizeH}
 
     -- TODO: Write proper broad phase
     local tileW, tileH = 800/TILESCREEN_W, 600/TILESCREEN_H
