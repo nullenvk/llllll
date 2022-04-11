@@ -1,13 +1,9 @@
 require("sprite")
 
 local TEXTURE_PATH_FADE = "res/fader.png"
-local FADE_TIME = 0.75
+local FADE_TIME = 0.35
 
-FadeEffect = Sprite:new({
-    reversed = false,
-    enabled = false,
-    startTime = nil,
-})
+FadeEffect = Sprite:new()
 
 function FadeEffect.preload()
     FadeEffect:loadTexture(TEXTURE_PATH_FADE)
@@ -23,6 +19,9 @@ function FadeEffect:new(o, reversed)
     self.__index = self
 
     o.reversed = reversed or false
+    o.environment = false
+    o.startTime = nil
+
     return o
 end
 

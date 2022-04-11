@@ -2,45 +2,37 @@ require("sprite")
 
 -- TODO: Make AABB collision detection here not so awful
 
+PHYS_UPDATE_FREQ = 1/240
 local SPEED_MAX = 750
 local SIDE_ACCEL = 4000
 local GRAV_ACCEL = 3000
-
-PHYS_UPDATE_FREQ = 1/240
 local TEXTURE_PATH_PLAYER = "res/player.png"
 
-Player = Sprite:new({
-    timer = 0,
-    physTimer = 0,
-
-    pos = {x = 0, y = 0},
-    vel = {x = 0, y = 0},
-    size = {w = 0, y = 0},
-
-    -- Controls
-    moveDir = 0, -- -1 left, +1 right
-    gravFlip = false, -- false means fall down
-    facingSide = false, -- false means left
-
-    isOnGround = false,
-})
+Player = Sprite:new()
 
 function Player:new(o)
     o = o or Sprite:new(o)
     setmetatable(o, self)
     self.__index = self
 
-    o.size = {self.spriteSizeW, self.spriteSizeH}
+    o.timer = 0
+    o.physTimer = 0
+
+    o.pos = {x = 0, y = 0}
+    o.vel = {x = 0, y = 0}
+
+    -- Controls
+    o.moveDir = 0 -- -1 left, +1 right
+    o.gravFlip = false -- false means fall down
+    o.facingSide = false -- false means left
+
+    o.isOnGround = false
 
     return o
 end
 
 function Player.preload()
-    --Player:loadTexture(TEXTURE_PATH_PLAYER)
-
-    -- DEBUG
-    Player:loadTexture(TEXTURE_PATH_PLAYER, 2)
-    Player.spriteSub = 2
+    Player:loadTexture(TEXTURE_PATH_PLAYER)
 end
 
 function Player.free()

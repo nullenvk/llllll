@@ -1,12 +1,14 @@
 GAMEOBJ_STATUS_OK = 0
 GAMEOBJ_STATUS_GARBAGE = -1
 
-GameObj = { runStatus = GAMEOBJ_STATUS_OK}
+GameObj = {}
 
 function GameObj:new(o)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
+
+    o.runStatus = GAMEOBJ_STATUS_OK
     return o
 end
 

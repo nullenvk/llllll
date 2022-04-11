@@ -1,16 +1,7 @@
 require('gameobj')
-Sprite = GameObj:new({
-    spritePosX = 0,
-    spritePosY = 0,
-    spriteFlipX = false,
-    spriteFlipY = false,
-    spriteSub = 1,
 
-    -- read only
-    spriteTexture = nil,
-    spriteQuads = nil,
-    spriteSizeW = 0,
-    spriteSizeH = 0,
+Sprite = GameObj:new({
+
 })
 
 function Sprite:new(o)
@@ -18,12 +9,18 @@ function Sprite:new(o)
     setmetatable(o, self)
     self.__index = self
 
+    o.spritePosX = 0
+    o.spritePosY = 0
+    o.spriteFlipX = false
+    o.spriteFlipY = false
+    o.spriteSub = 1
+
     return o
 end
 
 function Sprite:loadTexture(path, subspriteNum)
-    self.texture = love.graphics.newImage(path)
-    local texW, texH = self.texture:getDimensions()
+    self.spriteTexture = love.graphics.newImage(path)
+    local texW, texH = self.spriteTexture:getDimensions()
 
     subspriteNum = subspriteNum or 1
 
@@ -44,7 +41,7 @@ function Sprite:update(dt)
 end
 
 function Sprite:draw()
-    if self.texture == nil then error("Tried to draw a sprite without a loaded texture") end
+    if self.spriteTexture == nil then error("Tried to draw a sprite without a loaded texture") end
 
     local flipScaleX = self.spriteFlipX and -1 or 1
     local flipScaleY = self.spriteFlipY and -1 or 1
@@ -55,7 +52,7 @@ function Sprite:draw()
     local curQuad = self.spriteQuads[self.spriteSub]
 
     love.graphics.setColor(1,1,1)
-    love.graphics.draw(self.texture, curQuad,
+    love.graphics.draw(self.spriteTexture, curQuad,
         self.spritePosX + offsetX,
         self.spritePosY + offsetY,
         0, flipScaleX, flipScaleY)
