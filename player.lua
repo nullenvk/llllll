@@ -2,7 +2,7 @@ require("sprite")
 
 -- TODO: Make AABB collision detection here not so awful
 
-PHYS_UPDATE_FREQ = 1/240
+PHYS_UPDATE_FREQ = 1/120
 local SPEED_MAX = 750
 local SIDE_ACCEL = 4000
 local GRAV_ACCEL = 3000
@@ -217,10 +217,8 @@ function Player:updatePhys(tilemap)
         end
     end
 
-    local LEFT_TIME_MIN = 0.001
     local tTotal = 1
-
-    while tTotal > LEFT_TIME_MIN do
+    while tTotal > 0 do
         self.vel.x = clampVal(self.vel.x, -SPEED_MAX, SPEED_MAX)
         self.vel.y = clampVal(self.vel.y, -SPEED_MAX, SPEED_MAX)
 
@@ -238,5 +236,6 @@ function Player:doFlip()
     if self.isOnGround then
         self.gravFlip = not self.gravFlip
         self.vel.y = 0
+        self.pos.y = self.pos.y + (self.gravFlip and -1 or 1)
     end
 end
