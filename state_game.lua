@@ -156,10 +156,14 @@ function State_Game:updateNormal(dt)
     end
 
     -- Physics
+    local mapTiles = curScene[LAYERNUM_MAP]["tiles"]
+
     while playerObj.physTimer > PHYS_UPDATE_FREQ do
-        playerObj:updatePhys(curScene[LAYERNUM_MAP]["tiles"])
+        playerObj:updatePhys(mapTiles)
         playerObj.physTimer = playerObj.physTimer - PHYS_UPDATE_FREQ
     end
+
+    playerObj:testOnGround(mapTiles)
 
     -- Inputs
     if love.keyboard.isDown("space") then playerObj:doFlip() end

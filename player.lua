@@ -6,6 +6,8 @@ PHYS_UPDATE_FREQ = 1/120
 local SPEED_MAX = 750
 local SIDE_ACCEL = 4000
 local GRAV_ACCEL = 3000
+local FLIP_DELAY = 0.05
+
 local TEXTURE_PATH_PLAYER = "res/player.png"
 
 Player = Sprite:new()
@@ -17,6 +19,7 @@ function Player:new(o)
 
     o.timer = 0
     o.physTimer = 0
+    o.flipTimer = 0
 
     o.pos = {x = 0, y = 0}
     o.vel = {x = 0, y = 0}
@@ -44,6 +47,7 @@ function Player:update(dt)
 
     self.timer = self.timer + dt
     self.physTimer = self.physTimer + dt
+    self.flipTimer = self.flipTimer + dt
 
     -- Gravity flipping
     self.spriteFlipY = self.gravFlip
@@ -178,10 +182,6 @@ function Player:reactToCol(dPos, tHorz, tVert)
     if tVert < 1 then
         newPos.y = self.pos.y
         self.vel.y = 0
-        self.isOnGround = true
-    else
-        self.isOnGround = false
-
     end
 
     if tHorz < 1 then
@@ -232,10 +232,19 @@ function Player:updatePhys(tilemap)
     end
 end
 
+function Player:testOnGround(tilemap)
+    local testTop = self:testCollisionSweep(tilemap, {x = 0, y = 1})[2] < 1
+    local testBottom = self:testCollisionSweep(tilemap, {x = 0, y = -1})[2] < 1
+
+    self.isOnGround = testTop or testBottom
+end
+
 function Player:doFlip()
-    if self.isOnGround then
+    if self.isOnGround and self.flipTimer > FLIP_DELAY then
         self.gravFlip = not self.gravFlip
         self.vel.y = 0
-        self.pos.y = self.pos.y + (self.gravFlip and -1 or 1)
+        --self.pos.y = self.pos.y + (self.gravFlip and -1 or 1)
+        
+        self.flipTimer = 0
     end
 end
