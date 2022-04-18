@@ -2,8 +2,8 @@ require("sprite")
 
 -- TODO: Make AABB collision detection here not so awful
 
-PHYS_UPDATE_FREQ = 1/240
-local SPEED_MAX = 750
+PHYS_UPDATE_FREQ = 1/120
+local SPEED_MAX = 100
 local SIDE_ACCEL = 4000
 local GRAV_ACCEL = 3000
 local TEXTURE_PATH_PLAYER = "res/player.png"
@@ -125,12 +125,9 @@ local function colTestNarrow(r1, r2, dPos)
     local timeStart = math.max(xTimeStart, yTimeStart)
     if timeStart < 0 or timeStart > 1 then return false end
 
-    --local firstHitX = false
-    --if xTimeStart > yTimeStart then firstHitX = true end
-
     local vNormal = {x = 0, y = 0}
 
-    if xTimeStart > yTimeStart then
+    if xTimeStart >= yTimeStart then
         vNormal.x = dPos.x > 0 and -1 or 1
     else
         vNormal.y = dPos.y > 0 and -1 or 1
@@ -148,14 +145,15 @@ local function isTileEmpty(tilemap, tx, ty, normVec)
     return tdat == "0" or tdat == nil
 end
 
-function Player:runColTests(tilemap, dPos)
+function Player:testCollisionSweep(tilemap, dPos)
     local plyRect = {x = self.pos.x, y = self.pos.y, w = self.spriteSizeW, h = self.spriteSizeH}
 
     -- TODO: Write proper broad phase
     local tileW, tileH = 800/TILESCREEN_W, 600/TILESCREEN_H
     local tilerect = {x = 0, y = 0, w = tileW, h = tileH}
 
-    local finHitTime = {2, 2}
+    local finHitTime = {1, 1}
+    local finNormal = {x = 0, y = 0}
 
     for tx=1,TILESCREEN_W do
         for ty=1,TILESCREEN_H do
@@ -170,10 +168,14 @@ function Player:runColTests(tilemap, dPos)
         end
     end
 
-    --local travTime = math.min(finHitTime[1], finHitTime[2])
-    local newPos = {x = self.pos.x + dPos.x, y = self.pos.y + dPos.y}
+    return finHitTime, finNormal
+end
 
-    if finHitTime[2] < 2 then
+function Player:reactToCol(dPos, tHorz, tVert)
+    local tFinal = math.min(tHorz, tVert)
+    local newPos = {x = self.pos.x + dPos.x * tFinal, y = self.pos.y + dPos.y * tFinal}
+
+    if tVert < 1 then
         newPos.y = self.pos.y
         self.vel.y = 0
         self.isOnGround = true
@@ -182,12 +184,21 @@ function Player:runColTests(tilemap, dPos)
 
     end
 
-    if finHitTime[1] < 2 then
+    if tHorz < 1 then
         newPos.x = self.pos.x
         self.vel.x = 0
     end
 
     self.pos = newPos
+end
+
+function Player:runColTests(tilemap, dPos)
+    if dPos.x == 0 and dPos.y == 0 then return 1 end
+
+    local hitTime = self:testCollisionSweep(tilemap, dPos)
+    self:reactToCol(dPos, hitTime[1], hitTime[2])
+
+    return math.min(hitTime[1], hitTime[2], 1)
 end
 
 function Player:updatePhys(tilemap)
@@ -206,15 +217,21 @@ function Player:updatePhys(tilemap)
         end
     end
 
-    self.vel.x = clampVal(self.vel.x, -SPEED_MAX, SPEED_MAX)
-    self.vel.y = clampVal(self.vel.y, -SPEED_MAX, SPEED_MAX)
+    local LEFT_TIME_MIN = 0.001
+    local tTotal = 1
 
-    local dPos = {
-        x = self.vel.x * PHYS_UPDATE_FREQ,
-        y = self.vel.y * PHYS_UPDATE_FREQ
-    }
+    while tTotal > LEFT_TIME_MIN do
+        self.vel.x = clampVal(self.vel.x, -SPEED_MAX, SPEED_MAX)
+        self.vel.y = clampVal(self.vel.y, -SPEED_MAX, SPEED_MAX)
 
-    self:runColTests(tilemap, dPos)
+        local dPos = {
+            x = self.vel.x * PHYS_UPDATE_FREQ,
+            y = self.vel.y * PHYS_UPDATE_FREQ
+        }
+
+        local tSingle = self:runColTests(tilemap, dPos)
+        tTotal = tTotal - tTotal * tSingle * 1.05
+    end
 end
 
 function Player:doFlip()
