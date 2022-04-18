@@ -131,7 +131,7 @@ local function colTestNarrow(r1, r2, dPos)
 
     local vNormal = {x = 0, y = 0}
 
-    if xTimeStart >= yTimeStart then
+    if xTimeStart > yTimeStart then
         vNormal.x = dPos.x > 0 and -1 or 1
     else
         vNormal.y = dPos.y > 0 and -1 or 1
@@ -228,7 +228,7 @@ function Player:updatePhys(tilemap)
         }
 
         local tSingle = self:runColTests(tilemap, dPos)
-        tTotal = tTotal - tTotal * tSingle * 1.05
+        tTotal = tTotal - tTotal * tSingle
     end
 end
 
