@@ -2,8 +2,8 @@ require("sprite")
 
 -- TODO: Make AABB collision detection here not so awful
 
-PHYS_UPDATE_FREQ = 1/120
-local SPEED_MAX = 100
+PHYS_UPDATE_FREQ = 1/240
+local SPEED_MAX = 750
 local SIDE_ACCEL = 4000
 local GRAV_ACCEL = 3000
 local TEXTURE_PATH_PLAYER = "res/player.png"
@@ -225,8 +225,8 @@ function Player:updatePhys(tilemap)
         self.vel.y = clampVal(self.vel.y, -SPEED_MAX, SPEED_MAX)
 
         local dPos = {
-            x = self.vel.x * PHYS_UPDATE_FREQ,
-            y = self.vel.y * PHYS_UPDATE_FREQ
+            x = self.vel.x * PHYS_UPDATE_FREQ * tTotal,
+            y = self.vel.y * PHYS_UPDATE_FREQ * tTotal
         }
 
         local tSingle = self:runColTests(tilemap, dPos)
