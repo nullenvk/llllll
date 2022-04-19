@@ -83,7 +83,7 @@ local function colTestNarrow(r1, r2, dPos)
 
     -- X axis
     if dPos.x == 0 then
-        if r1.x < r2.x + r2.w and r2.x < r1.x + r1.w then
+        if r1.x <= r2.x + r2.w and r2.x <= r1.x + r1.w then
             xDistStart = -math.huge
             xDistEnd = math.huge
         else
@@ -101,7 +101,7 @@ local function colTestNarrow(r1, r2, dPos)
 
     -- Y axis
     if dPos.y == 0 then
-        if r1.y < r2.y + r2.h and r2.y < r1.y + r1.h then
+        if r1.y <= r2.y + r2.h and r2.y <= r1.y + r1.h then
             yDistStart = -math.huge
             yDistEnd = math.huge
         else
@@ -131,7 +131,7 @@ local function colTestNarrow(r1, r2, dPos)
 
     local vNormal = {x = 0, y = 0}
 
-    if xTimeStart > yTimeStart then
+    if xTimeStart >= yTimeStart then
         vNormal.x = dPos.x > 0 and -1 or 1
     else
         vNormal.y = dPos.y > 0 and -1 or 1

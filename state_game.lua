@@ -143,6 +143,9 @@ end
 function State_Game:updateNormal(dt)
     local newState = nil
 
+    -- Screen switch test
+    self:testScrSwitch()
+
     --Run updates on all oll objects in all layers
     for _,sceneObjs in ipairs(curScene) do
         for k,v in pairs(sceneObjs) do
@@ -167,8 +170,6 @@ function State_Game:updateNormal(dt)
 
     -- Inputs
     if love.keyboard.isDown("space") then playerObj:doFlip() end
-
-    self:testScrSwitch()
 
     return newState
 end
