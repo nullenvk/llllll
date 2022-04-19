@@ -6,7 +6,7 @@ PHYS_UPDATE_FREQ = 1/120
 local SPEED_MAX = 750
 local SIDE_ACCEL = 4000
 local GRAV_ACCEL = 3000
-local FLIP_DELAY = 0.05
+local FLIP_DELAY = 0.25
 
 local TEXTURE_PATH_PLAYER = "res/player.png"
 
@@ -83,7 +83,7 @@ local function colTestNarrow(r1, r2, dPos)
 
     -- X axis
     if dPos.x == 0 then
-        if r1.x <= r2.x + r2.w and r2.x <= r1.x + r1.w then
+        if r1.x < r2.x + r2.w and r2.x < r1.x + r1.w then
             xDistStart = -math.huge
             xDistEnd = math.huge
         else
@@ -101,7 +101,7 @@ local function colTestNarrow(r1, r2, dPos)
 
     -- Y axis
     if dPos.y == 0 then
-        if r1.y <= r2.y + r2.h and r2.y <= r1.y + r1.h then
+        if r1.y < r2.y + r2.h and r2.y < r1.y + r1.h then
             yDistStart = -math.huge
             yDistEnd = math.huge
         else
@@ -131,7 +131,7 @@ local function colTestNarrow(r1, r2, dPos)
 
     local vNormal = {x = 0, y = 0}
 
-    if xTimeStart >= yTimeStart then
+    if xTimeStart > yTimeStart then
         vNormal.x = dPos.x > 0 and -1 or 1
     else
         vNormal.y = dPos.y > 0 and -1 or 1
@@ -178,14 +178,12 @@ end
 function Player:reactToCol(dPos, tHorz, tVert)
     local tFinal = math.min(tHorz, tVert)
     local newPos = {x = self.pos.x + dPos.x * tFinal, y = self.pos.y + dPos.y * tFinal}
-
-    if tVert < 1 then
-        newPos.y = self.pos.y
+    
+    local neglDiff = PHYS_UPDATE_FREQ*1 -- Neglectibly small difference
+    
+    if tVert < tHorz + neglDiff and tVert < 1 then
         self.vel.y = 0
-    end
-
-    if tHorz < 1 then
-        newPos.x = self.pos.x
+    elseif tHorz < tVert + neglDiff and tHorz < 1 then
         self.vel.x = 0
     end
 
@@ -233,8 +231,8 @@ function Player:updatePhys(tilemap)
 end
 
 function Player:testOnGround(tilemap)
-    local testTop = self:testCollisionSweep(tilemap, {x = 0, y = 1})[2] < 1
-    local testBottom = self:testCollisionSweep(tilemap, {x = 0, y = -1})[2] < 1
+    local testTop = self:testCollisionSweep(tilemap, {x = 0, y = 3})[2] < 1
+    local testBottom = self:testCollisionSweep(tilemap, {x = 0, y = -3})[2] < 1
 
     self.isOnGround = testTop or testBottom
 end
@@ -243,8 +241,6 @@ function Player:doFlip()
     if self.isOnGround and self.flipTimer > FLIP_DELAY then
         self.gravFlip = not self.gravFlip
         self.vel.y = 0
-        --self.pos.y = self.pos.y + (self.gravFlip and -1 or 1)
-        
         self.flipTimer = 0
     end
 end

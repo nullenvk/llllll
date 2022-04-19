@@ -65,9 +65,6 @@ function State_Game:switchScreen(dx, dy)
     if playerObj == nil then
         playerObj = Player:new()
         playerObj.pos = {x = 400, y = 300}
-    else
-        --if dx ~= 0 then playerObj.pos.x = 800 - playerObj.pos.x end
-        --if dy ~= 0 then playerObj.pos.y = 600 - playerObj.pos.y end
     end
 
     curScene[LAYERNUM_MAP]["player"] = playerObj
