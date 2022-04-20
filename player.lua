@@ -2,7 +2,7 @@ require("sprite")
 
 -- TODO: Make AABB collision detection here not so awful
 
-PHYS_UPDATE_FREQ = 1/120
+PHYS_UPDATE_FREQ = 1/60
 local SPEED_MAX = 750
 local SIDE_ACCEL = 4000
 local GRAV_ACCEL = 3000
@@ -156,7 +156,7 @@ function Player:testCollisionSweep(tilemap, dPos)
     local tilerect = {x = 0, y = 0, w = tileW, h = tileH}
 
     local finHitTime = {1, 1}
-    local finNormal = {x = 0, y = 0}
+    local finHitTile = {nil, nil}
 
     for tx=1,TILESCREEN_W do
         for ty=1,TILESCREEN_H do
@@ -167,35 +167,66 @@ function Player:testCollisionSweep(tilemap, dPos)
             if didHit and tilemap.dat[tx][ty] ~= "0" and isTileEmpty(tilemap, tx, ty, normVec) then -- second option should normally be handled by broad phase
                 local hType = (normVec.x ~= 0) and 1 or 2
                 finHitTime[hType] = math.min(finHitTime[hType], whenHit)
+                finHitTile[hType] = {x = tx, y = ty}
             end
         end
     end
 
-    return finHitTime, finNormal
+    return finHitTime, finHitTile
 end
 
-function Player:reactToCol(dPos, tHorz, tVert)
-    local tFinal = math.min(tHorz, tVert)
-    local newPos = {x = self.pos.x + dPos.x * tFinal, y = self.pos.y + dPos.y * tFinal}
-    
-    local neglDiff = PHYS_UPDATE_FREQ*1 -- Neglectibly small difference
-    
-    if tVert < tHorz + neglDiff and tVert < 1 then
+function Player:reactToColSlide(dPos, tFinal, isVert, tile)
+    if isVert then
         self.vel.y = 0
-    elseif tHorz < tVert + neglDiff and tHorz < 1 then
+    else
         self.vel.x = 0
     end
 
+    local newPos = {x = self.pos.x + dPos.x * tFinal, y = self.pos.y + dPos.y * tFinal}
     self.pos = newPos
+
+end
+
+function Player:reactToColIgnore(dPos, tFinal, isVert, tile)
+    local newPos = {x = self.pos.x + dPos.x * tFinal, y = self.pos.y + dPos.y * tFinal}
+    self.pos = newPos
+end
+
+function Player:reactToCol(tilemap, dPos, tFinal, isVert, tilePos)
+    local TILE_HANDLERS = {
+        ['1'] = self.reactToColSlide,
+    }
+
+    local tile = tilemap.dat[tilePos.x][tilePos.y] 
+
+    local handler = TILE_HANDLERS[tile]
+    if handler ~= nil then 
+        handler(self, dPos, tFinal, isVert, tile)
+    else
+        self:reactToColIgnore(dPos, tFinal, isVert, tile)
+    end
 end
 
 function Player:runColTests(tilemap, dPos)
     if dPos.x == 0 and dPos.y == 0 then return 1 end
 
-    local hitTime = self:testCollisionSweep(tilemap, dPos)
-    self:reactToCol(dPos, hitTime[1], hitTime[2])
+    local hitTime, hitTile = self:testCollisionSweep(tilemap, dPos)
+    local tHorz, tVert = hitTime[1], hitTime[2]
+    local tFinal = math.min(tHorz, tVert, 1)
+    
+    local neglDiff = PHYS_UPDATE_FREQ*1 -- Neglectibly small difference
 
-    return math.min(hitTime[1], hitTime[2], 1)
+    if tVert < tHorz + neglDiff and tVert < 1 then
+        self:reactToCol(tilemap, dPos, tFinal, true, hitTile[2])
+    end
+
+    if tHorz < tVert + neglDiff and tHorz < 1 then
+        self:reactToCol(tilemap, dPos, tFinal, false, hitTile[1])
+    end
+
+    if tFinal >= 1 then self:reactToColIgnore(dPos, tFinal, false, '0') end
+
+    return tFinal 
 end
 
 function Player:updatePhys(tilemap)
