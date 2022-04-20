@@ -141,7 +141,6 @@ local function colTestNarrow(r1, r2, dPos)
 end
 
 local function isTileEmpty(tilemap, tx, ty, normVec)
-    -- just some special cases
     local tdatx = tilemap.dat[tx + normVec.x]
     if tdatx == nil then return false end
 
