@@ -192,9 +192,22 @@ function Player:reactToColIgnore(dPos, tFinal, isVert, tile)
     self.pos = newPos
 end
 
+function Player:reactToColBounce(dPos, tFinal, isVert, tile)
+    if isVert then
+        self.vel.y = -self.vel.y
+        self.gravFlip = not self.gravFlip
+    else
+        self.vel.x = -self.vel.x
+    end
+    
+    local newPos = {x = self.pos.x + dPos.x * tFinal, y = self.pos.y + dPos.y * tFinal}
+    self.pos = newPos
+end
+
 function Player:reactToCol(tilemap, dPos, tFinal, isVert, tilePos)
     local TILE_HANDLERS = {
         ['1'] = self.reactToColSlide,
+        ['2'] = self.reactToColBounce,
     }
 
     local tile = tilemap.dat[tilePos.x][tilePos.y] 
