@@ -148,6 +148,20 @@ local function isTileEmpty(tilemap, tx, ty, normVec)
     return tdat == "0" or tdat == nil
 end
 
+-- Collision detection broad phase
+function Player:genColTileBounds(dPos)
+    local xStart, yStart = self.pos.x, self.pos.y
+    local xEnd, yEnd = xStart + dPos.x, yStart + dPos.y
+    local xMin, xMax = math.min(xStart, xEnd), math.max(xStart, xEnd) + self.spriteSizeW
+    local yMin, yMax = math.min(yStart, yEnd), math.max(yStart, yEnd) + self.spriteSizeH
+    local tileW, tileH = 800/TILESCREEN_W, 600/TILESCREEN_H
+
+    local txMin, txMax = math.max(1, math.floor(xMin / tileW)), math.min(math.ceil(xMax / tileW), TILESCREEN_W)
+    local tyMin, tyMax = math.max(1, math.floor(yMin / tileH)), math.min(math.ceil(yMax / tileH), TILESCREEN_H)
+
+    return {x1 = txMin, x2 = txMax, y1 = tyMin, y2 = tyMax}
+end
+
 function Player:testCollisionSweep(tilemap, dPos)
     local plyRect = {x = self.pos.x, y = self.pos.y, w = self.spriteSizeW, h = self.spriteSizeH}
 
@@ -158,8 +172,10 @@ function Player:testCollisionSweep(tilemap, dPos)
     local finHitTime = {1, 1}
     local finHitTile = {nil, nil}
 
-    for tx=1,TILESCREEN_W do
-        for ty=1,TILESCREEN_H do
+    local tBounds = self:genColTileBounds(dPos)
+
+    for tx = tBounds.x1, tBounds.x2 do
+        for ty = tBounds.y1, tBounds.y2 do
             tilerect.x = (tx-1)*tileW
             tilerect.y = (ty-1)*tileH
 
