@@ -165,7 +165,6 @@ end
 function Player:testCollisionSweep(tilemap, dPos)
     local plyRect = {x = self.pos.x, y = self.pos.y, w = self.spriteSizeW, h = self.spriteSizeH}
 
-    -- TODO: Write proper broad phase
     local tileW, tileH = 800/TILESCREEN_W, 600/TILESCREEN_H
     local tilerect = {x = 0, y = 0, w = tileW, h = tileH}
 
