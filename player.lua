@@ -2,11 +2,11 @@ require("sprite")
 
 -- TODO: Make AABB collision detection here not so awful
 
-PHYS_UPDATE_FREQ = 1/60
-local SPEED_MAX = 750
-local SIDE_ACCEL = 4000
+PHYS_UPDATE_FREQ = 1/240
+local SPEED_MAX = 800
+local SIDE_ACCEL = 5000
 local GRAV_ACCEL = 3000
-local FLIP_DELAY = 0.25
+local FLIP_DELAY = 0.15
 
 local TEXTURE_PATH_PLAYER = "res/player.png"
 
@@ -227,7 +227,7 @@ function Player:runColTests(tilemap, dPos)
     local tHorz, tVert = hitTime[1], hitTime[2]
     local tFinal = math.min(tHorz, tVert, 1)
     
-    local neglDiff = PHYS_UPDATE_FREQ*1 -- Neglectibly small difference
+    local neglDiff = PHYS_UPDATE_FREQ*0.5 -- Neglectibly small difference
 
     if tVert < tHorz + neglDiff and tVert < 1 then
         self:reactToCol(tilemap, dPos, tFinal, true, hitTile[2])
