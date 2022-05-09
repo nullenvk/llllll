@@ -20,7 +20,7 @@ local playerObj = nil
 local introFade = nil
 local exitFade = nil
 
-ObjTiles = GameObj:new({dat = nil})
+ObjTiles = GameObj:new({dat = nil, colDat = nil})
 
 function ObjTiles:new(o, x, y)
     o = o or GameObj:new()
@@ -30,6 +30,14 @@ function ObjTiles:new(o, x, y)
     if (x and y) == nil then error("Failed to generate ObjTiles") end
 
     o.dat = tmap.screens[x][y]
+
+    --[[
+    o.colDat = {}
+    for _=1,TILESCREEN_W do 
+        table.insert(o.colDat, {}) 
+        for j=1, TILESCREEN_H do table.insert(o.colDat, 0) end
+    end
+    ]]
 
     return o
 end

@@ -258,8 +258,6 @@ function Player:runColTests(tilemap, dPos)
 end
 
 function Player:updatePhys(tilemap)
-    -- Idea: Maybe zero out velocity when player tries to move to the opposite of current velocity
-
     local gravDir = self.gravFlip and 1 or -1
     self.vel.x = self.vel.x + PHYS_UPDATE_FREQ * self.moveDir * SIDE_ACCEL
     self.vel.y = self.vel.y + PHYS_UPDATE_FREQ * gravDir * GRAV_ACCEL
