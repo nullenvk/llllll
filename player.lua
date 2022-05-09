@@ -1,7 +1,5 @@
 require("sprite")
 
--- TODO: Make AABB collision detection here not so awful
-
 PHYS_UPDATE_FREQ = 1/240
 local SPEED_MAX = 800
 local SIDE_ACCEL = 5000
@@ -162,6 +160,7 @@ function Player:genColTileBounds(dPos)
     return {x1 = txMin, x2 = txMax, y1 = tyMin, y2 = tyMax}
 end
 
+-- TODO: Don't return just the last hit tile, return all non-blocking tiles before that hit too
 function Player:testCollisionSweep(tilemap, dPos)
     local plyRect = {x = self.pos.x, y = self.pos.y, w = self.spriteSizeW, h = self.spriteSizeH}
 
@@ -172,6 +171,13 @@ function Player:testCollisionSweep(tilemap, dPos)
     local finHitTile = {nil, nil}
 
     local tBounds = self:genColTileBounds(dPos)
+
+    for tx=1,TILESCREEN_W do
+        for ty=1,TILESCREEN_H do
+            tilemap.colDat[tx][ty].prev = tilemap.colDat[tx][ty].now
+            tilemap.colDat[tx][ty].now = 0
+        end
+    end
 
     for tx = tBounds.x1, tBounds.x2 do
         for ty = tBounds.y1, tBounds.y2 do
@@ -190,13 +196,6 @@ function Player:testCollisionSweep(tilemap, dPos)
                     finHitTile[hType] = {x = tx, y = ty}
                 --end
             end
-        end
-    end
-
-    for tx=1,TILESCREEN_W do
-        for ty=1,TILESCREEN_H do
-            tilemap.colDat[tx][ty].prev = tilemap.colDat[tx][ty].now
-            tilemap.colDat[tx][ty].now = 0
         end
     end
 
