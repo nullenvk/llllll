@@ -31,13 +31,11 @@ function ObjTiles:new(o, x, y)
 
     o.dat = tmap.screens[x][y]
 
-    --[[
     o.colDat = {}
-    for _=1,TILESCREEN_W do 
+    for i=1,TILESCREEN_W do 
         table.insert(o.colDat, {}) 
-        for j=1, TILESCREEN_H do table.insert(o.colDat, 0) end
+        for j=1, TILESCREEN_H do table.insert(o.colDat[i], {prev = 0, now = 0}) end
     end
-    ]]
 
     return o
 end

@@ -181,9 +181,22 @@ function Player:testCollisionSweep(tilemap, dPos)
             local didHit, whenHit, normVec = colTestNarrow(plyRect, tilerect, dPos)
             if didHit and tilemap.dat[tx][ty] ~= "0" and isTileEmpty(tilemap, tx, ty, normVec) then -- second option should normally be handled by broad phase
                 local hType = (normVec.x ~= 0) and 1 or 2
-                finHitTime[hType] = math.min(finHitTime[hType], whenHit)
-                finHitTile[hType] = {x = tx, y = ty}
+                local colDat = tilemap.colDat[tx][ty]
+                colDat.now = 1
+
+                -- Rising edge
+                --if colDat.prev == 0 and colDat.now == 1 then
+                    finHitTime[hType] = math.min(finHitTime[hType], whenHit)
+                    finHitTile[hType] = {x = tx, y = ty}
+                --end
             end
+        end
+    end
+
+    for tx=1,TILESCREEN_W do
+        for ty=1,TILESCREEN_H do
+            tilemap.colDat[tx][ty].prev = tilemap.colDat[tx][ty].now
+            tilemap.colDat[tx][ty].now = 0
         end
     end
 
@@ -222,7 +235,7 @@ end
 function Player:reactToCol(tilemap, dPos, tFinal, isVert, tilePos)
     local TILE_HANDLERS = {
         ['1'] = self.reactToColSlide,
-        ['2'] = self.reactToColBounce,
+        ['2'] = self.reactToColIgnore,
     }
 
     local tile = tilemap.dat[tilePos.x][tilePos.y] 
