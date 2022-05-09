@@ -202,6 +202,16 @@ function Player:testCollisionSweep(tilemap, dPos)
     return finHitTime, finHitTile
 end
 
+-- TODO: This is ugly and may cause problems in the future
+local function isTileBlocking(tile)
+    local TILE_RET = {
+        ['1'] = true,
+        ['2'] = false,
+    }
+
+    return TILE_RET
+end
+
 function Player:reactToColSlide(dPos, tFinal, isVert, tile)
     if isVert then
         self.vel.y = 0
