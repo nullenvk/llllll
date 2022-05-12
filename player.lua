@@ -322,7 +322,6 @@ function Player:updatePhys(tilemap)
 end
 
 function Player:testOnGround(tilemap)
-    -- May break due to checking both axis
     local testTopList = self:testCollisionSweep(tilemap, {x = 0, y = 3})
     local testBottomList = self:testCollisionSweep(tilemap, {x = 0, y = -3})
     local testTop, testBottom = nil, nil --testTopList[#testTopList].doesBlock, testBottomList[#testBottomList].doesBlock
