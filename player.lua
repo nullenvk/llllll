@@ -309,9 +309,10 @@ function Player:updatePhys(tilemap)
 end
 
 function Player:testOnGround(tilemap)
-    -- TODO: Update to the new collision detection paradigm
-    local testTop = self:testCollisionSweep(tilemap, {x = 0, y = 3})[2] < 1
-    local testBottom = self:testCollisionSweep(tilemap, {x = 0, y = -3})[2] < 1
+    -- May break due to checking both axis
+    local testTopList = self:testCollisionSweep(tilemap, {x = 0, y = 3})
+    local testBottomList = self:testCollisionSweep(tilemap, {x = 0, y = -3})
+    local testTop, testBottom = testTopList[#testTopList].doesBlock, testBottomList[#testBottomList].doesBlock
 
     self.isOnGround = testTop or testBottom
 end
