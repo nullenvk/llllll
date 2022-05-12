@@ -167,7 +167,7 @@ local function isTileBlocking(tile)
         ['2'] = false,
     }
 
-    return TILE_RET
+    return TILE_RET[tile] or false
 end
 
 -- TODO: Don't return just the last hit tile, return all non-blocking tiles before that hit too
