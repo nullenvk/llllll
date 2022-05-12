@@ -138,12 +138,24 @@ local function colTestNarrow(r1, r2, dPos)
     return true, timeStart, vNormal
 end
 
+-- TODO: This is ugly and may cause problems in the future
+local function isTileBlocking(tile)
+    local TILE_RET = {
+        ['0'] = false,
+        ['1'] = true,
+        ['2'] = false,
+    }
+
+    return TILE_RET[tile] or false
+end
+
 local function isTileEmpty(tilemap, tx, ty, normVec)
     local tdatx = tilemap.dat[tx + normVec.x]
     if tdatx == nil then return false end
 
     local tdat = tdatx[ty + normVec.y]
-    return tdat == "0" or tdat == nil
+    --return tdat == "0" or tdat == nil
+    return not isTileBlocking(tdat)
 end
 
 -- Collision detection broad phase
@@ -158,16 +170,6 @@ function Player:genColTileBounds(dPos)
     local tyMin, tyMax = math.max(1, math.floor(yMin / tileH)), math.min(math.ceil(yMax / tileH), TILESCREEN_H)
 
     return {x1 = txMin, x2 = txMax, y1 = tyMin, y2 = tyMax}
-end
-
--- TODO: This is ugly and may cause problems in the future
-local function isTileBlocking(tile)
-    local TILE_RET = {
-        ['1'] = true,
-        ['2'] = false,
-    }
-
-    return TILE_RET[tile] or false
 end
 
 -- TODO: Don't return just the last hit tile, return all non-blocking tiles before that hit too
