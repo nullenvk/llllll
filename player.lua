@@ -166,18 +166,9 @@ function Player:testCollisionSweep(tilemap, dPos)
 
     local tileW, tileH = 800/TILESCREEN_W, 600/TILESCREEN_H
     local tilerect = {x = 0, y = 0, w = tileW, h = tileH}
-
-    local finHitTime = {1, 1}
-    local finHitTile = {nil, nil}
-
     local tBounds = self:genColTileBounds(dPos)
 
-    for tx=1,TILESCREEN_W do
-        for ty=1,TILESCREEN_H do
-            tilemap.colDat[tx][ty].prev = tilemap.colDat[tx][ty].now
-            tilemap.colDat[tx][ty].now = 0
-        end
-    end
+    local allHits = {}
 
     for tx = tBounds.x1, tBounds.x2 do
         for ty = tBounds.y1, tBounds.y2 do
@@ -185,21 +176,30 @@ function Player:testCollisionSweep(tilemap, dPos)
             tilerect.y = (ty-1)*tileH
 
             local didHit, whenHit, normVec = colTestNarrow(plyRect, tilerect, dPos)
-            if didHit and tilemap.dat[tx][ty] ~= "0" and isTileEmpty(tilemap, tx, ty, normVec) then -- second option should normally be handled by broad phase
+            if didHit and tilemap.dat[tx][ty] ~= "0" and isTileEmpty(tilemap, tx, ty, normVec) then
                 local hType = (normVec.x ~= 0) and 1 or 2
-                local colDat = tilemap.colDat[tx][ty]
-                colDat.now = 1
+                local hitObj = {
+                    .hType = hType,
+                    .time = whenHit
+                    .tile = {x = tx, y = ty},
+                    .doesBlock = isTileBlocking(tilemap.dat[tx][ty])
+                }
 
-                -- Rising edge
-                --if colDat.prev == 0 and colDat.now == 1 then
-                    finHitTime[hType] = math.min(finHitTime[hType], whenHit)
-                    finHitTile[hType] = {x = tx, y = ty}
-                --end
+                table.insert(allHits, hitObj)
             end
         end
     end
 
-    return finHitTime, finHitTile
+    table.sort(allHits, function(a, b) return a.time < b.time end) -- Sort by hit time
+
+    local hitsUntilBlock = {}
+
+    for k,v in ipairs(allHits) do
+        table.insert(hitsUntilBlock, v)
+        if v.doesBlock then break end
+    end
+
+    return hitsUntilBlock
 end
 
 -- TODO: This is ugly and may cause problems in the future
@@ -309,6 +309,7 @@ function Player:updatePhys(tilemap)
 end
 
 function Player:testOnGround(tilemap)
+    -- TODO: Update to the new collision detection paradigm
     local testTop = self:testCollisionSweep(tilemap, {x = 0, y = 3})[2] < 1
     local testBottom = self:testCollisionSweep(tilemap, {x = 0, y = -3})[2] < 1
 
