@@ -160,6 +160,16 @@ function Player:genColTileBounds(dPos)
     return {x1 = txMin, x2 = txMax, y1 = tyMin, y2 = tyMax}
 end
 
+-- TODO: This is ugly and may cause problems in the future
+local function isTileBlocking(tile)
+    local TILE_RET = {
+        ['1'] = true,
+        ['2'] = false,
+    }
+
+    return TILE_RET
+end
+
 -- TODO: Don't return just the last hit tile, return all non-blocking tiles before that hit too
 function Player:testCollisionSweep(tilemap, dPos)
     local plyRect = {x = self.pos.x, y = self.pos.y, w = self.spriteSizeW, h = self.spriteSizeH}
@@ -177,12 +187,11 @@ function Player:testCollisionSweep(tilemap, dPos)
 
             local didHit, whenHit, normVec = colTestNarrow(plyRect, tilerect, dPos)
             if didHit and tilemap.dat[tx][ty] ~= "0" and isTileEmpty(tilemap, tx, ty, normVec) then
-                local hType = (normVec.x ~= 0) and 1 or 2
                 local hitObj = {
-                    .hType = hType,
-                    .time = whenHit
-                    .tile = {x = tx, y = ty},
-                    .doesBlock = isTileBlocking(tilemap.dat[tx][ty])
+                    isHorz = normVec.x ~= 0,
+                    time = whenHit,
+                    tile = {x = tx, y = ty},
+                    doesBlock = isTileBlocking(tilemap.dat[tx][ty])
                 }
 
                 table.insert(allHits, hitObj)
@@ -192,24 +201,7 @@ function Player:testCollisionSweep(tilemap, dPos)
 
     table.sort(allHits, function(a, b) return a.time < b.time end) -- Sort by hit time
 
-    local hitsUntilBlock = {}
-
-    for k,v in ipairs(allHits) do
-        table.insert(hitsUntilBlock, v)
-        if v.doesBlock then break end
-    end
-
-    return hitsUntilBlock
-end
-
--- TODO: This is ugly and may cause problems in the future
-local function isTileBlocking(tile)
-    local TILE_RET = {
-        ['1'] = true,
-        ['2'] = false,
-    }
-
-    return TILE_RET
+    return allHits 
 end
 
 function Player:reactToColSlide(dPos, tFinal, isVert, tile)
@@ -260,11 +252,32 @@ end
 function Player:runColTests(tilemap, dPos)
     if dPos.x == 0 and dPos.y == 0 then return 1 end
 
-    local hitTime, hitTile = self:testCollisionSweep(tilemap, dPos)
-    local tHorz, tVert = hitTime[1], hitTime[2]
+    local hitList = self:testCollisionSweep(tilemap, dPos)
+
+    local tHorz, tVert = nil, nil
+    local hitTile = {nil, nil}
+
+    for _,v in ipairs(hitList) do
+        --if tHorz ~= nil and tVert ~= nil then break end
+
+        if v.doesBlock then
+            if v.isHorz and tHorz == nil then
+                tHorz = v.time
+                hitTile[1] = v.tile
+            elseif tVert == nil then
+                tVert = v.time
+                hitTile[2] = v.tile
+            end
+        end
+    end
+
+    tHorz = tHorz or 2
+    tVert = tVert or 2
+    print(tHorz, tVert)
+    
     local tFinal = math.min(tHorz, tVert, 1)
     
-    local neglDiff = PHYS_UPDATE_FREQ*0.5 -- Neglectibly small difference
+    local neglDiff = PHYS_UPDATE_FREQ*1.5 -- Neglectibly small difference
 
     if tVert < tHorz + neglDiff and tVert < 1 then
         self:reactToCol(tilemap, dPos, tFinal, true, hitTile[2])
@@ -312,7 +325,10 @@ function Player:testOnGround(tilemap)
     -- May break due to checking both axis
     local testTopList = self:testCollisionSweep(tilemap, {x = 0, y = 3})
     local testBottomList = self:testCollisionSweep(tilemap, {x = 0, y = -3})
-    local testTop, testBottom = testTopList[#testTopList].doesBlock, testBottomList[#testBottomList].doesBlock
+    local testTop, testBottom = nil, nil --testTopList[#testTopList].doesBlock, testBottomList[#testBottomList].doesBlock
+    
+    if #testTopList > 0 then testTop = testTopList[#testTopList].doesBlock end
+    if #testBottomList > 0 then testTop = testBottomList[#testBottomList].doesBlock end
 
     self.isOnGround = testTop or testBottom
 end
