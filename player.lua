@@ -188,7 +188,7 @@ function Player:testCollisionSweep(tilemap, dPos)
             local didHit, whenHit, normVec = colTestNarrow(plyRect, tilerect, dPos)
             if didHit and tilemap.dat[tx][ty] ~= "0" and isTileEmpty(tilemap, tx, ty, normVec) then
                 local hitObj = {
-                    isHorz = normVec.x ~= 0,
+                    isHorz = (normVec.x ~= 0),
                     time = whenHit,
                     tile = {x = tx, y = ty},
                     doesBlock = isTileBlocking(tilemap.dat[tx][ty])
@@ -258,13 +258,15 @@ function Player:runColTests(tilemap, dPos)
     local hitTile = {nil, nil}
 
     for _,v in ipairs(hitList) do
-        --if tHorz ~= nil and tVert ~= nil then break end
-
+        if tHorz ~= nil and tVert ~= nil then break end
+        
         if v.doesBlock then
             if v.isHorz and tHorz == nil then
                 tHorz = v.time
                 hitTile[1] = v.tile
-            elseif tVert == nil then
+            end
+
+            if not v.isHorz and tVert == nil then
                 tVert = v.time
                 hitTile[2] = v.tile
             end
@@ -273,11 +275,10 @@ function Player:runColTests(tilemap, dPos)
 
     tHorz = tHorz or 2
     tVert = tVert or 2
-    print(tHorz, tVert)
     
     local tFinal = math.min(tHorz, tVert, 1)
     
-    local neglDiff = PHYS_UPDATE_FREQ*1.5 -- Neglectibly small difference
+    local neglDiff = PHYS_UPDATE_FREQ*2 -- Neglectibly small difference, TODO: Revise later
 
     if tVert < tHorz + neglDiff and tVert < 1 then
         self:reactToCol(tilemap, dPos, tFinal, true, hitTile[2])
