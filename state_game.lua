@@ -3,13 +3,14 @@ require('sprite')
 require('player')
 require('tilemap')
 require('effect_fade')
+require('effect_starfield')
 
 -- TODO: reorganize this code
 
 State_Game = GameState:new({})
 
-local LAYERNUM_BACKGROUND = 0
-local LAYERNUM_MAP = 1
+local LAYERNUM_BACKGROUND = 1
+local LAYERNUM_MAP = 2
 
 local LAYERNUM_NUM = 2
 
@@ -67,6 +68,7 @@ function State_Game:switchScreen(dx, dy)
         playerObj.pos = {x = 400, y = 500}
     end
 
+    curScene[LAYERNUM_BACKGROUND]["starfield"] = StarfieldEffect:new(nil, true)
     curScene[LAYERNUM_MAP]["player"] = playerObj
     curScene[LAYERNUM_MAP]["tiles"] = ObjTiles:new(nil, tilescrPos.x, tilescrPos.y)
 end
