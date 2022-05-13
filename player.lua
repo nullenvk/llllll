@@ -48,7 +48,7 @@ function Player:update(dt)
     self.flipTimer = self.flipTimer + dt
 
     -- Gravity flipping
-    self.spriteFlipY = self.gravFlip
+    self.spriteFlipY = not self.gravFlip
 
     -- Movement
     self.moveDir = 0
