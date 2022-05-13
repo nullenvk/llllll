@@ -258,8 +258,15 @@ function Player:runColTests(tilemap, dPos)
     local tHorz, tVert = nil, nil
     local hitTile = {nil, nil}
 
+    local elapsed = 0
+
     for _,v in ipairs(hitList) do
         if tHorz ~= nil and tVert ~= nil then break end
+
+        if tHorz == nil and tVert == nil and not v.doesBlock then
+            self:reactToCol(tilemap, dPos, v.time - elapsed, (not v.isHorz), v.tile)
+            elapsed = v.time
+        end
         
         if v.doesBlock then
             if v.isHorz and tHorz == nil then
@@ -282,11 +289,11 @@ function Player:runColTests(tilemap, dPos)
     local neglDiff = PHYS_UPDATE_FREQ*2 -- Neglectibly small difference, TODO: Revise later
 
     if tVert < tHorz + neglDiff and tVert < 1 then
-        self:reactToCol(tilemap, dPos, tFinal, true, hitTile[2])
+        self:reactToCol(tilemap, dPos, tFinal - elapsed, true, hitTile[2])
     end
 
     if tHorz < tVert + neglDiff and tHorz < 1 then
-        self:reactToCol(tilemap, dPos, tFinal, false, hitTile[1])
+        self:reactToCol(tilemap, dPos, tFinal - elapsed, false, hitTile[1])
     end
 
     if tFinal >= 1 then self:reactToColIgnore(dPos, tFinal, false, '0') end
