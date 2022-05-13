@@ -172,7 +172,6 @@ function Player:genColTileBounds(dPos)
     return {x1 = txMin, x2 = txMax, y1 = tyMin, y2 = tyMax}
 end
 
--- TODO: Don't return just the last hit tile, return all non-blocking tiles before that hit too
 function Player:testCollisionSweep(tilemap, dPos)
     local plyRect = {x = self.pos.x, y = self.pos.y, w = self.spriteSizeW, h = self.spriteSizeH}
 
@@ -325,14 +324,18 @@ function Player:updatePhys(tilemap)
 end
 
 function Player:testOnGround(tilemap)
+    local function isHitlistBlocking(l)
+        for _,v in ipairs(l) do
+            if v.doesBlock then return true end
+        end
+
+        return false
+    end
+
     local testTopList = self:testCollisionSweep(tilemap, {x = 0, y = 3})
     local testBottomList = self:testCollisionSweep(tilemap, {x = 0, y = -3})
-    local testTop, testBottom = nil, nil --testTopList[#testTopList].doesBlock, testBottomList[#testBottomList].doesBlock
-    
-    if #testTopList > 0 then testTop = testTopList[#testTopList].doesBlock end
-    if #testBottomList > 0 then testTop = testBottomList[#testBottomList].doesBlock end
 
-    self.isOnGround = testTop or testBottom
+    self.isOnGround = isHitlistBlocking(testTopList) or isHitlistBlocking(testBottomList)
 end
 
 function Player:doFlip()
