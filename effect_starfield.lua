@@ -44,7 +44,7 @@ function StarfieldEffect:addRandomStars(n)
 end
 
 function StarfieldEffect:drawStar(star, elapsed)
-    local tMov = (elapsed - star.t) % self.flyTime
+    local tMov = ((elapsed - star.t) / self.flyTime) % 1
     local xCoord = tMov * (800 + STAR_SIZE.w) - STAR_SIZE.w
 
     love.graphics.setColor(STAR_COLOR)
