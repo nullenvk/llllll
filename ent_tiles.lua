@@ -64,6 +64,7 @@ function ObjTiles:drawTile(tx, ty)
         return tile == self.dat[tx + ox][ty + oy]
     end
 
+    love.graphics.setColor(0.2, 1, 0.9)
     love.graphics.rectangle("fill", (tx-1)*tile_w, (ty-1)*tile_h, tile_w, tile_h)
     if self.textures[tile] == nil then return end
 
@@ -79,7 +80,6 @@ function ObjTiles:drawTile(tx, ty)
 end
 
 function ObjTiles:draw()
-    love.graphics.setColor(0.2,0,0.9)
 
     for x=1,TILESCREEN_W do
         for y=1,TILESCREEN_H do
