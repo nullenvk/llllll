@@ -43,6 +43,7 @@ function State_Game:init()
     tmap = TileMap:new(nil, "res/main.map")
     FadeEffect.preload()
     Player.preload()
+    ObjTiles.preload()
 
     tilescrPos = {x = 1, y = 1}
     self:switchScreen(0,0)
@@ -167,6 +168,7 @@ function State_Game:fini()
     introFade = nil
     exitFade = nil
 
+    ObjTiles.free()
     Player.free()
     FadeEffect.free()
 end
