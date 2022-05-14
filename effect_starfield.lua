@@ -1,9 +1,8 @@
 require("gameobj")
 
---local TEXTURE_PATH_FADE = "res/fader.png"
-local STAR_COLOR = {0.34, 0.34, 0.34}
-local STAR_SIZE = {w = 4, h = 3}
-local STAR_VARIATION = {lowb = 0.9, highb = 1}
+local STAR_COLOR = {0.24, 0.24, 0.24}
+local STAR_SIZE = {w = 6, h = 4}
+local STAR_VARIATION = {lowb = 0.4, highb = 1}
 local INIT_STAR_COUNT = 30
 local FLY_TIME_NORMAL = 10
 
@@ -38,7 +37,8 @@ function StarfieldEffect:addRandomStars(n)
     local function addRandomStar()
         local t = love.math.random() * FLY_TIME_NORMAL
         local y = love.math.random(600 - STAR_SIZE.h)
-        local s = love.math.random(STAR_VARIATION.lowb, STAR_VARIATION.highb)
+        local s = love.math.random() 
+                * (STAR_VARIATION.highb - STAR_VARIATION.lowb) + STAR_VARIATION.lowb
         self:addStar(t, y, s)
     end
 
