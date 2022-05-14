@@ -17,22 +17,17 @@ local LAYERNUM_NUM = 2
 
 local curScene = {}
 local tmap = nil
-local tilescrPos = nil
+local tilescrPos = {1, 1}
 local playerObj = nil
 local introFade = nil
 local exitFade = nil
 
-function State_Game:switchScreen(dx, dy)
+function State_Game:switchScreen(sx, sy)
     curScene = {}
     for _=1,LAYERNUM_NUM do table.insert(curScene, {}) end
 
-    tilescrPos.x = tilescrPos.x + dx
-    tilescrPos.y = tilescrPos.y + dy
-
-    if playerObj == nil then
-        playerObj = Player:new()
-        playerObj.pos = {x = 400, y = 500}
-    end
+    tilescrPos.x = sx
+    tilescrPos.y = sy
 
     curScene[LAYERNUM_BACKGROUND]["starfield"] = StarfieldEffect:new(nil, true)
     curScene[LAYERNUM_MAP]["player"] = playerObj
@@ -45,8 +40,8 @@ function State_Game:init()
     Player.preload()
     ObjTiles.preload()
 
-    tilescrPos = {x = 1, y = 1}
-    self:switchScreen(0,0)
+    playerObj = Player:new()
+    self:switchScreen(1,1)
 
     introFade = FadeEffect:new(nil, true)
     exitFade = FadeEffect:new(nil, false)
@@ -67,7 +62,7 @@ function State_Game:draw()
     exitFade:draw()
 end
 
-function State_Game:testScrSwitch()
+function State_Game:testScrSwitchOOB() -- Out of bounds case
     local function unstuckPlayer(horz)
         if horz then
             playerObj.pos.y = playerObj.pos.y + (playerObj.gravFlip and -1 or 1)
@@ -103,7 +98,25 @@ function State_Game:testScrSwitch()
         unstuckPlayer(false)
     end
 
-    if dx ~= 0 or dy ~= 0 then self:switchScreen(dx, dy) end
+    if dx ~= 0 or dy ~= 0 then 
+        self:switchScreen(tilescrPos.x + dx, tilescrPos.y + dy)
+        return true
+    end
+
+    return false
+end
+
+function State_Game:testScrSwitchTeleport()
+    local tdest = playerObj.teleportDest
+    if tdest ~= nil then
+        playerObj.pos = {x = tdest.x, y = tdest.y}
+        self:switchScreen(tdest.sx, tdest.sy)
+        playerObj.teleportDest = nil
+    end
+end
+
+function State_Game:testScrSwitch()
+    return self:testScrSwitchTeleport() or self:testScrSwitchOOB()
 end
 
 function State_Game:updateNormal(dt)
@@ -163,7 +176,6 @@ function State_Game:fini()
 
     curScene = nil
     tmap = nil
-    tilescrPos = nil
     playerObj = nil
     introFade = nil
     exitFade = nil
