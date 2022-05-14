@@ -125,13 +125,13 @@ function State_Game:testScrSwitch()
     end
 
     if playerObj.pos.y > 600 then
-        playerObj.pos.y = 0
+        playerObj.pos.y = 1
         dy = 1
         unstuckPlayer(false)
     end
 
     if playerObj.pos.y < 0 then
-        playerObj.pos.y = 600
+        playerObj.pos.y = 599
         dy = -1
         unstuckPlayer(false)
     end
