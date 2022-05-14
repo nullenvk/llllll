@@ -6,6 +6,9 @@ local SIDE_ACCEL = 5000
 local GRAV_ACCEL = 3000
 local FLIP_DELAY = 0.15
 
+local COLOR_ALIVE = {0.2, 0.2, 1, 1}
+local COLOR_DEATH = {1, 0.2, 0.2, 1}
+
 local TEXTURE_PATH_PLAYER = "res/player.png"
 
 Player = Sprite:new()
@@ -67,7 +70,10 @@ function Player:update(dt)
     self.deathTimer = self.deathTimer + dt
 
     if not self.isDead then
+        self.spriteColor = COLOR_ALIVE
         self:updateNormal(dt)
+    else
+        self.spriteColor = COLOR_DEATH
     end
 
     self.spritePosX = self.pos.x

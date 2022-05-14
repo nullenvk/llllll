@@ -14,6 +14,7 @@ function Sprite:new(o)
     o.spriteFlipX = false
     o.spriteFlipY = false
     o.spriteSub = 1
+    o.spriteColor = {1, 1, 1}
 
     return o
 end
@@ -51,7 +52,7 @@ function Sprite:draw()
     local offsetY = self.spriteFlipY and self.spriteSizeH or 0
     local curQuad = self.spriteQuads[self.spriteSub]
 
-    love.graphics.setColor(1,1,1)
+    love.graphics.setColor(self.spriteColor)
     love.graphics.draw(self.spriteTexture, curQuad,
         self.spritePosX + offsetX,
         self.spritePosY + offsetY,
