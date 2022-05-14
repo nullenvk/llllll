@@ -8,6 +8,7 @@ function love.load()
 
     LetterboxInit(winW, winH)
     love.window.setMode(winW, winH) -- may fail
+    love.window.setVSync(1)
 
     curGameState = State_MainMenu
     curGameState:init()
