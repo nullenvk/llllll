@@ -4,6 +4,7 @@ require('player')
 require('tilemap')
 require('effect_fade')
 require('effect_starfield')
+require('ent_tiles')
 
 -- TODO: reorganize this code
 
@@ -21,41 +22,6 @@ local playerObj = nil
 local introFade = nil
 local exitFade = nil
 
-ObjTiles = GameObj:new({dat = nil, colDat = nil})
-
-function ObjTiles:new(o, x, y)
-    o = o or GameObj:new()
-    setmetatable(o, self)
-    self.__index = self
-
-    if (x and y) == nil then error("Failed to generate ObjTiles") end
-
-    o.dat = tmap.screens[x][y]
-
-    return o
-end
-
-function ObjTiles:draw()
-    local tile_w = 800/TILESCREEN_W
-    local tile_h = 600/TILESCREEN_H
-
-    local function drawTile(tx, ty)
-        love.graphics.rectangle("fill", (tx-1)*tile_w, (ty-1)*tile_h, tile_w, tile_h)
-    end
-
-    love.graphics.setColor(0.2,0,0.9)
-
-    for x=1,TILESCREEN_W do
-        for y=1,TILESCREEN_H do
-            if self.dat[x][y] ~= "0" then drawTile(x, y) end
-        end
-    end
-end
-
-function ObjTiles:update(_)
-
-end
-
 function State_Game:switchScreen(dx, dy)
     curScene = {}
     for _=1,LAYERNUM_NUM do table.insert(curScene, {}) end
@@ -70,7 +36,7 @@ function State_Game:switchScreen(dx, dy)
 
     curScene[LAYERNUM_BACKGROUND]["starfield"] = StarfieldEffect:new(nil, true)
     curScene[LAYERNUM_MAP]["player"] = playerObj
-    curScene[LAYERNUM_MAP]["tiles"] = ObjTiles:new(nil, tilescrPos.x, tilescrPos.y)
+    curScene[LAYERNUM_MAP]["tiles"] = ObjTiles:new(nil, tmap, tilescrPos.x, tilescrPos.y)
 end
 
 function State_Game:init()
