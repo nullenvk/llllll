@@ -1,6 +1,6 @@
 require("sprite")
 
-PHYS_UPDATE_FREQ = 1/240
+PHYS_UPDATE_FREQ = 1/60
 local SPEED_MAX = 800
 local SIDE_ACCEL = 5000
 local GRAV_ACCEL = 3000
