@@ -1,8 +1,6 @@
 require('gameobj')
 
-Sprite = GameObj:new({
-
-})
+Sprite = GameObj:new({})
 
 function Sprite:new(o)
     o = o or GameObj:new(o)
