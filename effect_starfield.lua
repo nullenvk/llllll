@@ -4,6 +4,8 @@ require("gameobj")
 local STAR_COLOR = {0.34, 0.34, 0.34}
 local STAR_SIZE = {w = 4, h = 3}
 local STAR_VARIATION = {lowb = 0.9, highb = 1}
+local INIT_STAR_COUNT = 30
+local FLY_TIME_NORMAL = 10
 
 StarfieldEffect = GameObj:new()
 
@@ -15,10 +17,8 @@ function StarfieldEffect:new(o, randomized)
     o.randomized = randomized or false
     o.stars = {}
     o.startTime = nil
-    o.flyTime = 10 -- seconds, const
-    o.initStarCount = 30 -- const
 
-    if o.randomized then o:addRandomStars(o.initStarCount) end
+    if o.randomized then o:addRandomStars(INIT_STAR_COUNT) end
 
     self:start()
 
@@ -36,7 +36,7 @@ end
 
 function StarfieldEffect:addRandomStars(n)
     local function addRandomStar()
-        local t = love.math.random() * self.flyTime
+        local t = love.math.random() * FLY_TIME_NORMAL
         local y = love.math.random(600 - STAR_SIZE.h)
         local s = love.math.random(STAR_VARIATION.lowb, STAR_VARIATION.highb)
         self:addStar(t, y, s)
@@ -47,7 +47,7 @@ end
 
 function StarfieldEffect:drawStar(star, elapsed)
     local starW, starH = STAR_SIZE.w * star.scale, STAR_SIZE.h * star.scale
-    local tMov = ((elapsed - star.t) / (self.flyTime / star.scale)) % 1
+    local tMov = ((elapsed - star.t) / (FLY_TIME_NORMAL / star.scale)) % 1
     local xCoord = tMov * (800 + starW) - starW
 
     love.graphics.setColor(STAR_COLOR)
