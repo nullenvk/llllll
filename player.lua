@@ -5,6 +5,7 @@ local SPEED_MAX = 800
 local SIDE_ACCEL = 5000
 local GRAV_ACCEL = 3000
 local FLIP_DELAY = 0.15
+local DEATH_TIMEOUT = 1
 
 local COLOR_ALIVE = {0.2, 0.2, 1, 1}
 local COLOR_DEATH = {1, 0.2, 0.2, 1}
@@ -26,7 +27,7 @@ function Player:new(o)
     o.pos = {x = 0, y = 0}
     o.vel = {x = 0, y = 0}
     o.teleportDest = {x = 400, y = 300, sx = 1, sy = 1} -- nil if shouldn't get teleported
-    o.respawnDest = {x = 400, y = 300, sx = 1, sy = 1}
+    o.respawnDest = {x = 400, y = 500, sx = 1, sy = 1}
 
     -- Controls
     o.moveDir = 0 -- -1 left, +1 right
@@ -63,6 +64,15 @@ function Player:updateNormal(dt)
     end
 end
 
+function Player:updateDeath(dt)
+    if self.isDead then
+        if self.deathTimer > DEATH_TIMEOUT then
+            self:teleport(self.respawnDest)
+            self.isDead = false
+        end
+    end
+end
+
 function Player:update(dt)
     Sprite.update(self)
 
@@ -76,6 +86,7 @@ function Player:update(dt)
         self:updateNormal(dt)
     else
         self.spriteColor = COLOR_DEATH
+        self:updateDeath(dt)
     end
 
     self.spritePosX = self.pos.x
@@ -381,4 +392,8 @@ end
 function Player:kill()
     self.isDead = true
     self.deathTimer = 0 
+end
+
+function Player:teleport(dst)
+    self.teleportDest = dst
 end
