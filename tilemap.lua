@@ -53,8 +53,6 @@ end
 local function parseScreen(sct)
     local tiles = {}
 
-    -- TODO: Instead of single characters, make tiles numbers separated by ;
-
     for _=1,TILESCREEN_W do
         table.insert(tiles, {})
     end
