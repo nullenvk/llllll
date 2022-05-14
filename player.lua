@@ -18,6 +18,7 @@ function Player:new(o)
     o.timer = 0
     o.physTimer = 0
     o.flipTimer = 0
+    o.deathTimer = 0
 
     o.pos = {x = 0, y = 0}
     o.vel = {x = 0, y = 0}
@@ -28,6 +29,7 @@ function Player:new(o)
     o.facingSide = false -- false means left
 
     o.isOnGround = false
+    o.isDead = false
 
     return o
 end
@@ -40,13 +42,7 @@ function Player.free()
     Player.texture = nil
 end
 
-function Player:update(dt)
-    Sprite.update(self)
-
-    self.timer = self.timer + dt
-    self.physTimer = self.physTimer + dt
-    self.flipTimer = self.flipTimer + dt
-
+function Player:updateNormal(dt)
     -- Gravity flipping
     self.spriteFlipY = not self.gravFlip
 
@@ -59,6 +55,19 @@ function Player:update(dt)
     -- Horizontal flipping
     if self.moveDir ~= 0 then
         self.spriteFlipX = self.moveDir ~= 1
+    end
+end
+
+function Player:update(dt)
+    Sprite.update(self)
+
+    self.timer = self.timer + dt
+    self.physTimer = self.physTimer + dt
+    self.flipTimer = self.flipTimer + dt
+    self.deathTimer = self.deathTimer + dt
+
+    if not self.isDead then
+        self:updateNormal(dt)
     end
 
     self.spritePosX = self.pos.x
@@ -222,6 +231,11 @@ function Player:reactToColIgnore(dPos, tFinal, isVert, tile)
     self.pos = newPos
 end
 
+function Player:reactToColKill(dPos, tFinal, isVert, tile)
+    self:kill()
+    self:reactToColIgnore(dPos, tFinal, isVert, tile)
+end
+
 function Player:reactToColBounce(dPos, tFinal, isVert, tile)
     if isVert then
         self.vel.y = -self.vel.y
@@ -237,7 +251,7 @@ end
 function Player:reactToCol(tilemap, dPos, tFinal, isVert, tilePos)
     local TILE_HANDLERS = {
         ['1'] = self.reactToColSlide,
-        ['2'] = self.reactToColIgnore,
+        ['2'] = self.reactToColKill,
     }
 
     local tile = tilemap.dat[tilePos.x][tilePos.y] 
@@ -302,6 +316,9 @@ function Player:runColTests(tilemap, dPos)
 end
 
 function Player:updatePhys(tilemap)
+    -- Don't update pos if dead
+    if self.isDead then return end
+
     local gravDir = self.gravFlip and 1 or -1
     self.vel.x = self.vel.x + PHYS_UPDATE_FREQ * self.moveDir * SIDE_ACCEL
     self.vel.y = self.vel.y + PHYS_UPDATE_FREQ * gravDir * GRAV_ACCEL
@@ -346,9 +363,14 @@ function Player:testOnGround(tilemap)
 end
 
 function Player:doFlip()
-    if self.isOnGround and self.flipTimer > FLIP_DELAY then
+    if self.isOnGround and self.flipTimer > FLIP_DELAY and not self.isDead then
         self.gravFlip = not self.gravFlip
         self.vel.y = 0
         self.flipTimer = 0
     end
+end
+
+function Player:kill()
+    self.isDead = true
+    self.deathTimer = 0 
 end
