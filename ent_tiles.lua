@@ -56,6 +56,7 @@ function ObjTiles:drawTile(tx, ty)
     local tile_h = 600/TILESCREEN_H
     local tile = self.dat[tx][ty]
 
+    -- Assumes that tiles out of bounds of current screen aren't connected
     local function isSeamless(ox, oy)
         if tx + ox < 1 or tx + ox > TILESCREEN_W then return false end
         if ty + oy < 1 or ty + oy > TILESCREEN_H then return false end
