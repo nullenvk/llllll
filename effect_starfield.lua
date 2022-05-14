@@ -1,7 +1,7 @@
 require("gameobj")
 
 --local TEXTURE_PATH_FADE = "res/fader.png"
-local STAR_COLOR = {0.24, 0.24, 0.24}
+local STAR_COLOR = {0.34, 0.34, 0.34}
 local STAR_SIZE = {w = 6, h = 3}
 
 StarfieldEffect = GameObj:new()
