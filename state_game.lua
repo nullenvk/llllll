@@ -65,9 +65,9 @@ end
 function State_Game:testScrSwitchOOB() -- Out of bounds case
     local function unstuckPlayer(horz)
         if horz then
-            playerObj.pos.y = playerObj.pos.y + (playerObj.gravFlip and -1 or 1)
+            --playerObj.pos.y = playerObj.pos.y + (playerObj.gravFlip and -1 or 1)
         else
-            playerObj.pos.x = playerObj.pos.x + (playerObj.facingSide and -1 or 1)
+            --playerObj.pos.x = playerObj.pos.x + (playerObj.facingSide and -1 or 1)
         end
     end
 
@@ -76,12 +76,12 @@ function State_Game:testScrSwitchOOB() -- Out of bounds case
 
     if playerObj.pos.x > 800 then
         dx = 1
-        playerObj.pos.x = 0
+        playerObj.pos.x = 1
         unstuckPlayer(true)
     end
 
     if playerObj.pos.x < 0 then
-        playerObj.pos.x = 800
+        playerObj.pos.x = 799
         dx = -1
         unstuckPlayer(true)
     end

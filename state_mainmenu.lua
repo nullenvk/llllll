@@ -74,8 +74,8 @@ function State_MainMenu:keypressed(key, scancode, isrepeat)
     if isrepeat then return end
     if menuState.optActivated then return end
 
-    if key == "right" then mainmenuNextOpt()
-    elseif key == "left" then mainmenuPrevOpt()
+    if key == "a" then mainmenuNextOpt()
+    elseif key == "d" then mainmenuPrevOpt()
     elseif key == "return" then activateSelOption() end
 end
 
