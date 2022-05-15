@@ -26,8 +26,8 @@ function Player:new(o)
 
     o.pos = {x = 0, y = 0}
     o.vel = {x = 0, y = 0}
-    o.teleportDest = {x = 400, y = 300, sx = 1, sy = 1} -- nil if shouldn't get teleported
-    o.respawnDest = {x = 400, y = 500, sx = 1, sy = 1}
+    o.respawnDest = {x = 400, y = 500, sx = 1, sy = 1, reset = true}
+    o.teleportDest = o.respawnDest -- nil if shouldn't get teleported
 
     -- Controls
     o.moveDir = 0 -- -1 left, +1 right

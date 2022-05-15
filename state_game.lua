@@ -90,7 +90,8 @@ end
 function State_Game:testScrSwitchTeleport()
     local tdest = self.player.teleportDest
     if tdest ~= nil then
-        self.player = Player:new()
+        if tdest.reset then self.player = Player:new() end
+
         self.player.pos = {x = tdest.x, y = tdest.y}
         self:switchScreen(tdest.sx, tdest.sy)
         self.player.teleportDest = nil
