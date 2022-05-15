@@ -1,4 +1,4 @@
-require('ent_sprite')
+require('src.ent_sprite')
 
 local TILETYPE_NUM = 2
 

@@ -1,4 +1,4 @@
-require("ent_sprite")
+require("src.ent_sprite")
 
 PHYS_UPDATE_FREQ = 1/120
 local SPEED_MAX = 800

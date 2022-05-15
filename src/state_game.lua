@@ -1,10 +1,10 @@
-require('gamestate')
-require('tilemap')
-require('effect_fade')
-require('effect_starfield')
-require('ent_tiles')
-require('ent_sprite')
-require('ent_player')
+require('src.gamestate')
+require('src.tilemap')
+require('src.effect_fade')
+require('src.effect_starfield')
+require('src.ent_tiles')
+require('src.ent_sprite')
+require('src.ent_player')
 
 State_Game = GameState:new({})
 

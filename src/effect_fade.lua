@@ -1,4 +1,4 @@
-require("ent_sprite")
+require("src.ent_sprite")
 
 local TEXTURE_PATH_FADE = "res/fader.png"
 local FADE_TIME = 0.35

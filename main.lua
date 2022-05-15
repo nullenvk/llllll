@@ -1,5 +1,5 @@
-require('letterbox')
-require('state_mainmenu')
+require('src.letterbox')
+require('src.state_mainmenu')
 
 local curGameState
 

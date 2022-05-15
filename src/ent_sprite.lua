@@ -1,4 +1,4 @@
-require('ent_gameobj')
+require('src.ent_gameobj')
 
 Sprite = GameObj:new({})
 

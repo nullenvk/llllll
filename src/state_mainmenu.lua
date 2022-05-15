@@ -1,6 +1,6 @@
-require('gamestate')
-require('state_game')
-require('effect_fade')
+require('src.gamestate')
+require('src.state_game')
+require('src.effect_fade')
 
 State_MainMenu = GameState:new({})
 

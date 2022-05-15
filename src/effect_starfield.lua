@@ -1,4 +1,4 @@
-require("ent_gameobj")
+require("src.ent_gameobj")
 
 local STAR_COLOR = {0.24, 0.24, 0.24}
 local STAR_SIZE = {w = 6, h = 4}
