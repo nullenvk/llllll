@@ -14,15 +14,15 @@ local LAYERNUM_MAP = 2
 local LAYERNUM_NUM = 2
 
 function State_Game:switchScreen(sx, sy)
-    self.curScene = {}
-    for _=1,LAYERNUM_NUM do table.insert(self.curScene, {}) end
+    self.scene = {}
+    for _=1,LAYERNUM_NUM do table.insert(self.scene, {}) end
 
-    self.tilescrPos.x = sx
-    self.tilescrPos.y = sy
+    self.tilemapPos.x = sx
+    self.tilemapPos.y = sy
 
-    self.curScene[LAYERNUM_BACKGROUND]["starfield"] = StarfieldEffect:new(nil, true)
-    self.curScene[LAYERNUM_MAP]["player"] = self.player
-    self.curScene[LAYERNUM_MAP]["tiles"] = ObjTiles:new(nil, self.tmap, self.tilescrPos.x, self.tilescrPos.y)
+    self.scene[LAYERNUM_BACKGROUND]["starfield"] = StarfieldEffect:new(nil, true)
+    self.scene[LAYERNUM_MAP]["player"] = self.player
+    self.scene[LAYERNUM_MAP]["tiles"] = ObjTiles:new(nil, self.tmap, self.tilemapPos.x, self.tilescrPos.y)
 end
 
 function State_Game:init()
@@ -31,14 +31,14 @@ function State_Game:init()
     Player.preload()
     ObjTiles.preload()
 
-    self.tilescrPos = {x = 1, y = 1}
+    self.tilemapPos = {x = 1, y = 1}
 
     self.player = Player:new()
     self:switchScreen(1,1)
 
-    self.introFade = FadeEffect:new(nil, true)
-    self.exitFade = FadeEffect:new(nil, false)
-    self.introFade:start()
+    self.fadeIntro = FadeEffect:new(nil, true)
+    self.fadeExit = FadeEffect:new(nil, false)
+    self.fadeIntro:start()
 end
 
 function State_Game:draw()
@@ -46,13 +46,13 @@ function State_Game:draw()
     love.graphics.rectangle("fill", 0, 0, 800, 600)
 
     --Draw objects layer by layer
-    for _,sceneObjs in ipairs(self.curScene) do
+    for _,sceneObjs in ipairs(self.scene) do
         for _,v in pairs(sceneObjs) do v:runDraw() end
     end
 
     -- Effects
-    self.introFade:draw()
-    self.exitFade:draw()
+    self.fadeIntro:draw()
+    self.fadeExit:draw()
 end
 
 function State_Game:testScrSwitchOOB() -- Out of bounds case
@@ -80,7 +80,7 @@ function State_Game:testScrSwitchOOB() -- Out of bounds case
     end
 
     if dx ~= 0 or dy ~= 0 then 
-        self:switchScreen(self.tilescrPos.x + dx, self.tilescrPos.y + dy)
+        self:switchScreen(self.tilemapPos.x + dx, self.tilescrPos.y + dy)
         return true
     end
 
@@ -108,7 +108,7 @@ function State_Game:updateNormal(dt)
     self:testScrSwitch()
 
     --Run updates on all oll objects in all layers
-    for _,sceneObjs in ipairs(self.curScene) do
+    for _,sceneObjs in ipairs(self.scene) do
         for k,v in pairs(sceneObjs) do
 
             v:runUpdate(dt)
@@ -120,7 +120,7 @@ function State_Game:updateNormal(dt)
     end
 
     -- Physics
-    local mapTiles = self.curScene[LAYERNUM_MAP]["tiles"]
+    local mapTiles = self.scene[LAYERNUM_MAP]["tiles"]
 
     while self.player.physTimer > PHYS_UPDATE_FREQ do
         self.player:updatePhys(mapTiles)
@@ -136,7 +136,7 @@ function State_Game:updateNormal(dt)
 end
 
 function State_Game:updateExiting()
-    if self.exitFade:hasFinished() then
+    if self.fadeExit:hasFinished() then
         return State_MainMenu
     end
 
@@ -144,7 +144,7 @@ function State_Game:updateExiting()
 end
 
 function State_Game:update(dt)
-    if not self.exitFade:hasStarted() then
+    if not self.fadeExit:hasStarted() then
         return self:updateNormal(dt)
     else
         return self:updateExiting(dt)
@@ -152,7 +152,7 @@ function State_Game:update(dt)
 end
 
 function State_Game:fini()
-    for _,sceneObjs in ipairs(self.curScene) do
+    for _,sceneObjs in ipairs(self.scene) do
         for _,v in pairs(sceneObjs) do v:destroyObj() end
     end
 
@@ -162,7 +162,7 @@ function State_Game:fini()
 end
 
 function GameState:keypressed(key, _, isrepeat)
-    if key == "escape" and not self.exitFade:hasStarted() then
-        self.exitFade:start()
+    if key == "escape" and not self.fadeExit:hasStarted() then
+        self.fadeExit:start()
     end
 end
