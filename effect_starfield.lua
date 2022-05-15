@@ -1,4 +1,4 @@
-require("gameobj")
+require("ent_gameobj")
 
 local STAR_COLOR = {0.24, 0.24, 0.24}
 local STAR_SIZE = {w = 6, h = 4}
@@ -39,6 +39,7 @@ function StarfieldEffect:addRandomStars(n)
         local y = love.math.random(600 - STAR_SIZE.h)
         local s = love.math.random() 
                 * (STAR_VARIATION.highb - STAR_VARIATION.lowb) + STAR_VARIATION.lowb
+
         self:addStar(t, y, s)
     end
 

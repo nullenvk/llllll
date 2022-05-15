@@ -1,4 +1,4 @@
-require("sprite")
+require("ent_sprite")
 
 PHYS_UPDATE_FREQ = 1/120
 local SPEED_MAX = 800

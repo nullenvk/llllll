@@ -1,15 +1,14 @@
-require('gameobj')
-require('sprite')
+require('ent_sprite')
 
 local TILETYPE_NUM = 2
 
-ObjTiles = GameObj:new({dat = nil, colDat = nil, textures = nil})
+Tiles = GameObj:new({dat = nil, colDat = nil, textures = nil})
 
-function ObjTiles.preload()
+function Tiles.preload()
     local PATH_PREFIX = "res/tile"
     local PATH_SUFFIX = ".png"
 
-    ObjTiles.textures = {}
+    Tiles.textures = {}
 
     for i=1,TILETYPE_NUM do
         local path = PATH_PREFIX..tostring(i)..PATH_SUFFIX
@@ -31,27 +30,27 @@ function ObjTiles.preload()
             texH = texH,
         }
 
-        ObjTiles.textures[tostring(i)] = txt
+        Tiles.textures[tostring(i)] = txt
     end
 end
 
-function ObjTiles.free()
-    ObjTiles.textures = nil
+function Tiles.free()
+    Tiles.textures = nil
 end
 
-function ObjTiles:new(o, tilemap, x, y)
+function Tiles:new(o, tilemap, x, y)
     o = o or GameObj:new()
     setmetatable(o, self)
     self.__index = self
 
-    if (x and y) == nil then error("Failed to generate ObjTiles") end
+    if (x and y) == nil then error("Failed to generate Tiles") end
 
     o.dat = tilemap.screens[x][y]
 
     return o
 end
 
-function ObjTiles:drawTile(tx, ty)
+function Tiles:drawTile(tx, ty)
     local tile_w = 800/TILESCREEN_W
     local tile_h = 600/TILESCREEN_H
     local tile = self.dat[tx][ty]
@@ -74,12 +73,12 @@ function ObjTiles:drawTile(tx, ty)
     qnum = qnum + (isSeamless(-1, 0) and 0 or 4)
     qnum = qnum + (isSeamless(1, 0) and 0 or 8)
 
-    local tex = ObjTiles.textures[tile]
+    local tex = Tiles.textures[tile]
     local x, y = (tx-1) * tile_w, (ty-1) * tile_h
     love.graphics.draw(tex.texture, tex.quads[qnum], x, y)
 end
 
-function ObjTiles:draw()
+function Tiles:draw()
 
     for x=1,TILESCREEN_W do
         for y=1,TILESCREEN_H do
@@ -88,4 +87,4 @@ function ObjTiles:draw()
     end
 end
 
-function ObjTiles:update(_) end
+function Tiles:update(_) end

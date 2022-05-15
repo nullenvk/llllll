@@ -1,10 +1,10 @@
 require('gamestate')
-require('sprite')
-require('player')
 require('tilemap')
 require('effect_fade')
 require('effect_starfield')
 require('ent_tiles')
+require('ent_sprite')
+require('ent_player')
 
 State_Game = GameState:new({})
 
@@ -22,14 +22,14 @@ function State_Game:switchScreen(sx, sy)
 
     self.scene[LAYERNUM_BACKGROUND]["starfield"] = StarfieldEffect:new(nil, true)
     self.scene[LAYERNUM_MAP]["player"] = self.player
-    self.scene[LAYERNUM_MAP]["tiles"] = ObjTiles:new(nil, self.tmap, self.tilemapPos.x, self.tilemapPos.y)
+    self.scene[LAYERNUM_MAP]["tiles"] = Tiles:new(nil, self.tmap, self.tilemapPos.x, self.tilemapPos.y)
 end
 
 function State_Game:init()
     self.tmap = TileMap:new(nil, "res/main.map")
     FadeEffect.preload()
     Player.preload()
-    ObjTiles.preload()
+    Tiles.preload()
 
     self.tilemapPos = {x = 1, y = 1}
 
@@ -156,7 +156,7 @@ function State_Game:fini()
         for _,v in pairs(sceneObjs) do v:destroyObj() end
     end
 
-    ObjTiles.free()
+    Tiles.free()
     Player.free()
     FadeEffect.free()
 end
