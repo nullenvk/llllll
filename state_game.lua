@@ -22,7 +22,7 @@ function State_Game:switchScreen(sx, sy)
 
     self.scene[LAYERNUM_BACKGROUND]["starfield"] = StarfieldEffect:new(nil, true)
     self.scene[LAYERNUM_MAP]["player"] = self.player
-    self.scene[LAYERNUM_MAP]["tiles"] = ObjTiles:new(nil, self.tmap, self.tilemapPos.x, self.tilescrPos.y)
+    self.scene[LAYERNUM_MAP]["tiles"] = ObjTiles:new(nil, self.tmap, self.tilemapPos.x, self.tilemapPos.y)
 end
 
 function State_Game:init()
@@ -80,7 +80,7 @@ function State_Game:testScrSwitchOOB() -- Out of bounds case
     end
 
     if dx ~= 0 or dy ~= 0 then 
-        self:switchScreen(self.tilemapPos.x + dx, self.tilescrPos.y + dy)
+        self:switchScreen(self.tilemapPos.x + dx, self.tilemapPos.y + dy)
         return true
     end
 
