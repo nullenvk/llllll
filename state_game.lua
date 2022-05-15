@@ -6,21 +6,12 @@ require('effect_fade')
 require('effect_starfield')
 require('ent_tiles')
 
--- TODO: reorganize this code
-
 State_Game = GameState:new({})
 
 local LAYERNUM_BACKGROUND = 1
 local LAYERNUM_MAP = 2
 
 local LAYERNUM_NUM = 2
-
---local curScene = {}
---local tmap = nil
---local tilescrPos = {1, 1}
---local player = nil
---local introFade = nil
---local exitFade = nil
 
 function State_Game:switchScreen(sx, sy)
     self.curScene = {}
@@ -65,39 +56,27 @@ function State_Game:draw()
 end
 
 function State_Game:testScrSwitchOOB() -- Out of bounds case
-    local function unstuckPlayer(horz)
-        if horz then
-            --player.pos.y = player.pos.y + (player.gravFlip and -1 or 1)
-        else
-            --player.pos.x = player.pos.x + (player.facingSide and -1 or 1)
-        end
-    end
-
     -- TODO: ugly code, change later
     local dx, dy = 0, 0
 
     if self.player.pos.x > 800 then
         dx = 1
         self.player.pos.x = 1
-        unstuckPlayer(true)
     end
 
     if self.player.pos.x < 0 then
         self.player.pos.x = 799
         dx = -1
-        unstuckPlayer(true)
     end
 
     if self.player.pos.y > 600 then
         self.player.pos.y = 1
         dy = 1
-        unstuckPlayer(false)
     end
 
     if self.player.pos.y < 0 then
         self.player.pos.y = 599
         dy = -1
-        unstuckPlayer(false)
     end
 
     if dx ~= 0 or dy ~= 0 then 
