@@ -99,7 +99,7 @@ function State_Game:testScrSwitchTeleport()
 end
 
 function State_Game:testScrSwitch()
-    return self:testScrSwitchTeleport() or self:testScrSwitchOOB()
+    return self:testScrSwitchTeleport() --or self:testScrSwitchOOB()
 end
 
 function State_Game:updateNormal(dt)

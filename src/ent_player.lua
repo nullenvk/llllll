@@ -174,7 +174,7 @@ local function isTileBlocking(tile)
         ['2'] = false,
     }
 
-    return TILE_RET[tile] or false
+    return TILE_RET[tile] or tile == nil
 end
 
 local function isTileEmpty(tilemap, tx, ty, normVec)
@@ -183,7 +183,7 @@ local function isTileEmpty(tilemap, tx, ty, normVec)
 
     local tdat = tdatx[ty + normVec.y]
     --return tdat == "0" or tdat == nil
-    return not isTileBlocking(tdat)
+    return (not isTileBlocking(tdat)) and tdat ~= nil
 end
 
 -- Collision detection broad phase
@@ -194,8 +194,8 @@ function Player:genColTileBounds(dPos)
     local yMin, yMax = math.min(yStart, yEnd), math.max(yStart, yEnd) + self.spriteSizeH
     local tileW, tileH = 800/TILESCREEN_W, 600/TILESCREEN_H
 
-    local txMin, txMax = math.max(1, math.floor(xMin / tileW)), math.min(math.ceil(xMax / tileW), TILESCREEN_W)
-    local tyMin, tyMax = math.max(1, math.floor(yMin / tileH)), math.min(math.ceil(yMax / tileH), TILESCREEN_H)
+    local txMin, txMax = math.floor(xMin / tileW), math.ceil(xMax / tileW)
+    local tyMin, tyMax = math.floor(yMin / tileH), math.ceil(yMax / tileH)
 
     return {x1 = txMin, x2 = txMax, y1 = tyMin, y2 = tyMax}
 end
@@ -215,12 +215,22 @@ function Player:testCollisionSweep(tilemap, dPos)
             tilerect.y = (ty-1)*tileH
 
             local didHit, whenHit, normVec = colTestNarrow(plyRect, tilerect, dPos)
-            if didHit and tilemap.dat[tx][ty] ~= "0" and isTileEmpty(tilemap, tx, ty, normVec) then
+            local notEmpty = true
+            local tDat = nil
+            
+            if tilemap.dat[tx] ~= nil then 
+                tDat = tilemap.dat[tx][ty]
+                notEmpty = (tilemap.dat[tx][ty] ~= "0")
+            else
+                tDat = nil
+            end
+
+            if didHit and notEmpty and isTileEmpty(tilemap, tx, ty, normVec) then
                 local hitObj = {
                     isHorz = (normVec.x ~= 0),
                     time = whenHit,
                     tile = {x = tx, y = ty},
-                    doesBlock = isTileBlocking(tilemap.dat[tx][ty])
+                    doesBlock = isTileBlocking(tDat)
                 }
 
                 table.insert(allHits, hitObj)
@@ -272,10 +282,17 @@ function Player:reactToCol(tilemap, dPos, tFinal, isVert, tilePos)
         ['1'] = self.reactToColSlide,
         ['2'] = self.reactToColKill,
     }
+    
+    local NIL_HANDLER = self.reactToColSlide
 
-    local tile = tilemap.dat[tilePos.x][tilePos.y] 
+    local tile = nil
+    if tilemap.dat[tilePos.x] ~= nil then
+        tile = tilemap.dat[tilePos.x][tilePos.y]
+    end
 
     local handler = TILE_HANDLERS[tile]
+    if tile == nil then handler = NIL_HANDLER end
+
     if handler ~= nil then 
         handler(self, dPos, tFinal, isVert, tile)
     else
