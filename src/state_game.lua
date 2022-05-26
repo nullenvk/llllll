@@ -17,12 +17,12 @@ function State_Game:switchScreen(sx, sy)
     self.scene = {}
     for _=1,LAYERNUM_NUM do table.insert(self.scene, {}) end
 
-    self.tilemapPos.x = sx
-    self.tilemapPos.y = sy
+    self.player.tmPos.x = sx
+    self.player.tmPos.y = sy
 
     self.scene[LAYERNUM_BACKGROUND]["starfield"] = StarfieldEffect:new(nil, true)
     self.scene[LAYERNUM_MAP]["player"] = self.player
-    self.scene[LAYERNUM_MAP]["tiles"] = Tiles:new(nil, self.tmap, self.tilemapPos.x, self.tilemapPos.y)
+    self.scene[LAYERNUM_MAP]["tiles"] = Tiles:new(nil, self.tmap, self.player.tmPos.x, self.player.tmPos.y)
 end
 
 function State_Game:init()
@@ -31,9 +31,9 @@ function State_Game:init()
     Player.preload()
     Tiles.preload()
 
-    self.tilemapPos = {x = 1, y = 1}
 
     self.player = Player:new()
+    self.player.tmPos = {x = 1, y = 1}
     self:switchScreen(1,1)
 
     self.fadeIntro = FadeEffect:new(nil, true)
@@ -80,7 +80,7 @@ function State_Game:testScrSwitchOOB() -- Out of bounds case
     end
 
     if dx ~= 0 or dy ~= 0 then 
-        self:switchScreen(self.tilemapPos.x + dx, self.tilemapPos.y + dy)
+        self:switchScreen(self.player.tmPos.x + dx, self.player.tmPos.y + dy)
         return true
     end
 

@@ -26,6 +26,7 @@ function Player:new(o)
 
     o.pos = {x = 0, y = 0}
     o.vel = {x = 0, y = 0}
+    o.tmPos = {x = 1, y = 1}
     o.respawnDest = {x = 400, y = 500, sx = 1, sy = 1, reset = true}
     o.teleportDest = o.respawnDest -- nil if shouldn't get teleported
 
@@ -179,7 +180,7 @@ end
 
 local function isTileEmpty(tilemap, tx, ty, normVec)
     local tdatx = tilemap.dat[tx + normVec.x]
-    if tdatx == nil then return false end
+    if tdatx == nil then return true end
 
     local tdat = tdatx[ty + normVec.y]
     --return tdat == "0" or tdat == nil
@@ -265,6 +266,26 @@ function Player:reactToColKill(dPos, tFinal, isVert, tile)
     self:reactToColIgnore(dPos, tFinal, isVert, tile)
 end
 
+function Player:reactToColTransition(dPos, tFinal, isVert, tile)
+    local px, py = self.pos.x, self.pos.y
+    local pw, ph = self.spriteSizeW, self.spriteSizeH
+    local tdx, tdy = 0, 0
+
+    local startx, endx = 1, 799
+    local starty, endy = 1, 599
+    
+    if isVert then
+        if (dPos.y > 0) then py = starty else py = endy - ph end
+        tdy = dPos.y > 0 and 1 or -1
+    else
+        if (dPos.x > 0) then px = startx else px = endx - pw end
+        tdx = dPos.x > 0 and 1 or -1
+    end
+
+    self:teleport({x = px, y = py, sx = self.tmPos.x + tdx, sy = self.tmPos.y + tdy, reset = false})
+
+end
+
 function Player:reactToColBounce(dPos, tFinal, isVert, tile)
     if isVert then
         self.vel.y = -self.vel.y
@@ -283,7 +304,7 @@ function Player:reactToCol(tilemap, dPos, tFinal, isVert, tilePos)
         ['2'] = self.reactToColKill,
     }
     
-    local NIL_HANDLER = self.reactToColSlide
+    local NIL_HANDLER = self.reactToColTransition
 
     local tile = nil
     if tilemap.dat[tilePos.x] ~= nil then
