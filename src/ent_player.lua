@@ -1,6 +1,6 @@
 require("src.ent_sprite")
 
-PHYS_UPDATE_FREQ = 1/120
+PHYS_UPDATE_FREQ = 1 / 120
 local SPEED_MAX = 800
 local SIDE_ACCEL = 5000
 local GRAV_ACCEL = 3000
@@ -194,7 +194,7 @@ function Player:genColTileBounds(dPos)
     local xEnd, yEnd = xStart + dPos.x, yStart + dPos.y
     local xMin, xMax = math.min(xStart, xEnd), math.max(xStart, xEnd) + self.spriteSizeW
     local yMin, yMax = math.min(yStart, yEnd), math.max(yStart, yEnd) + self.spriteSizeH
-    local tileW, tileH = 800/TILESCREEN_W, 600/TILESCREEN_H
+    local tileW, tileH = 800 / TILESCREEN_W, 600 / TILESCREEN_H
 
     local txMin, txMax = math.floor(xMin / tileW), math.ceil(xMax / tileW)
     local tyMin, tyMax = math.floor(yMin / tileH), math.ceil(yMax / tileH)
@@ -205,7 +205,7 @@ end
 function Player:testCollisionSweep(tilemap, dPos)
     local plyRect = {x = self.pos.x, y = self.pos.y, w = self.spriteSizeW, h = self.spriteSizeH}
 
-    local tileW, tileH = 800/TILESCREEN_W, 600/TILESCREEN_H
+    local tileW, tileH = 800 / TILESCREEN_W, 600 / TILESCREEN_H
     local tilerect = {x = 0, y = 0, w = tileW, h = tileH}
     local tBounds = self:genColTileBounds(dPos)
 
