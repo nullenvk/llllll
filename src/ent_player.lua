@@ -410,7 +410,13 @@ end
 function Player:testOnGround(tilemap)
     local function isHitlistBlocking(l)
         for _,v in ipairs(l) do
-            if v.doesBlock then return true end
+            local tp = v.tile
+            local tileX = tilemap.dat[tp.x]
+            if tileX ~= nil then
+                local tile = tilemap.dat[tp.x][tp.y]
+
+                if v.doesBlock and tile ~= nil then return true end
+            end
         end
 
         return false
