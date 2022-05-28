@@ -55,38 +55,6 @@ function State_Game:draw()
     self.fadeExit:draw()
 end
 
-function State_Game:testScrSwitchOOB() -- Out of bounds case
-    -- TODO: ugly code, change later
-    local dx, dy = 0, 0
-
-    if self.player.pos.x > 800 then
-        dx = 1
-        self.player.pos.x = 1
-    end
-
-    if self.player.pos.x < 0 then
-        self.player.pos.x = 799
-        dx = -1
-    end
-
-    if self.player.pos.y > 600 then
-        self.player.pos.y = 1
-        dy = 1
-    end
-
-    if self.player.pos.y < 0 then
-        self.player.pos.y = 599
-        dy = -1
-    end
-
-    if dx ~= 0 or dy ~= 0 then 
-        self:switchScreen(self.player.tmPos.x + dx, self.player.tmPos.y + dy)
-        return true
-    end
-
-    return false
-end
-
 function State_Game:testScrSwitchTeleport()
     local tdest = self.player.teleportDest
     if tdest ~= nil then
