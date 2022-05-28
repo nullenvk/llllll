@@ -51,8 +51,8 @@ function Tiles:new(o, tilemap, x, y)
 end
 
 function Tiles:drawTile(tx, ty)
-    local tile_w = 800/TILESCREEN_W
-    local tile_h = 600/TILESCREEN_H
+    local tile_w = 800 / TILESCREEN_W
+    local tile_h = 600 / TILESCREEN_H
     local tile = self.dat[tx][ty]
 
     -- Assumes that tiles out of bounds of current screen aren't connected

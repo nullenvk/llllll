@@ -82,7 +82,7 @@ end
 function State_MainMenu:draw()
     love.graphics.setColor(1, 1, 1)
     love.graphics.draw(menuState.bgText, 0, 0)
-    love.graphics.printf(MENU_TEXTS[menuState.curMainOption], menuState.mainFont, 0, 300 - MENUFONT_SIZE/2, 800, "center")
+    love.graphics.printf(MENU_TEXTS[menuState.curMainOption], menuState.mainFont, 0, 300 - MENUFONT_SIZE / 2, 800, "center")
 
     menuState.introFade:draw()
     menuState.choiceFade:draw()
