@@ -174,8 +174,9 @@ local function isTileBlocking(tile)
         ['1'] = true,
         ['2'] = false,
     }
-
-    return TILE_RET[tile] or tile == nil
+    
+    if tile == nil then return true end
+    return TILE_RET[tile] 
 end
 
 local function isTileEmpty(tilemap, tx, ty, normVec)
@@ -184,7 +185,7 @@ local function isTileEmpty(tilemap, tx, ty, normVec)
 
     local tdat = tdatx[ty + normVec.y]
     --return tdat == "0" or tdat == nil
-    return (not isTileBlocking(tdat)) and tdat ~= nil
+    return (not isTileBlocking(tdat)) --and tdat ~= nil
 end
 
 -- Collision detection broad phase
@@ -322,7 +323,9 @@ function Player:reactToCol(tilemap, dPos, tFinal, isVert, tilePos)
 end
 
 function Player:runColTests(tilemap, dPos)
+    -- Prematurely break further physics calculations once following conditions occur
     if dPos.x == 0 and dPos.y == 0 then return 1 end
+    if self.teleportDest ~= nil then return 1 end
 
     local hitList = self:testCollisionSweep(tilemap, dPos)
 
