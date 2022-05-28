@@ -45,9 +45,26 @@ function Tiles:new(o, tilemap, x, y)
 
     if (x and y) == nil then error("Failed to generate Tiles") end
 
+    o.sx = x
+    o.sy = y
     o.dat = tilemap.screens[x][y]
 
     return o
+end
+
+function Tiles:setColorByScreen()
+    local w, h = 2, 2 
+
+    local xi = (self.sx - 1) % w
+    local yi = (self.sy - 1) % h
+    local i = 1 + xi + yi * w
+
+    local SCR_COLORS = {
+        {0.2, 1, 0.9}, {0.9, 1, 0.2},
+        {0.4, 0.2, 0.9}, {0.9, 0.4, 0.3},
+    }
+
+    love.graphics.setColor(SCR_COLORS[i])
 end
 
 function Tiles:drawTile(tx, ty)
@@ -63,7 +80,6 @@ function Tiles:drawTile(tx, ty)
         return tile == self.dat[tx + ox][ty + oy]
     end
 
-    love.graphics.setColor(0.2, 1, 0.9)
     love.graphics.rectangle("fill", (tx-1)*tile_w, (ty-1)*tile_h, tile_w, tile_h)
     if self.textures[tile] == nil then return end
 
@@ -79,6 +95,7 @@ function Tiles:drawTile(tx, ty)
 end
 
 function Tiles:draw()
+    self:setColorByScreen()
 
     for x=1,TILESCREEN_W do
         for y=1,TILESCREEN_H do

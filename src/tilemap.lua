@@ -65,6 +65,8 @@ local function parseScreen(sct)
 
     -- Idea: maybe add optional data after reading tiles?
 
+    -- Reading screen color
+
     return tiles
 end
 

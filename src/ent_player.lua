@@ -148,7 +148,7 @@ local function colTestNarrow(r1, r2, dPos)
     xTimeStart = xDistStart / math.abs(dPos.x)
     xTimeEnd = xDistEnd / math.abs(dPos.x)
 
-    yTimeStart = yDistStart/ math.abs(dPos.y)
+    yTimeStart = yDistStart / math.abs(dPos.y)
     yTimeEnd = yDistEnd / math.abs(dPos.y)
 
     if xTimeStart > yTimeEnd or yTimeStart > xTimeEnd then return false end
