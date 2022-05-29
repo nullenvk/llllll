@@ -1,6 +1,7 @@
 require('src.ent_sprite')
 
-local TILETYPE_NUM = 2
+--local TILETYPE_NUM = 2
+local TILETYPES = {"B", "K"}
 
 Tiles = GameObj:new({dat = nil, colDat = nil, textures = nil})
 
@@ -10,8 +11,8 @@ function Tiles.preload()
 
     Tiles.textures = {}
 
-    for i=1,TILETYPE_NUM do
-        local path = PATH_PREFIX..tostring(i)..PATH_SUFFIX
+    for _,v in pairs(TILETYPES) do
+        local path = PATH_PREFIX .. v .. PATH_SUFFIX
         local texture = love.graphics.newImage(path)
         local quads = {}
 
@@ -30,7 +31,7 @@ function Tiles.preload()
             texH = texH,
         }
 
-        Tiles.textures[tostring(i)] = txt
+        Tiles.textures[v] = txt
     end
 end
 

@@ -171,8 +171,8 @@ end
 local function isTileBlocking(tile)
     local TILE_RET = {
         ['0'] = false,
-        ['1'] = true,
-        ['2'] = false,
+        ['B'] = true,
+        ['K'] = false,
     }
     
     if tile == nil then return true end
@@ -301,8 +301,8 @@ end
 
 function Player:reactToCol(tilemap, dPos, tFinal, isVert, tilePos)
     local TILE_HANDLERS = {
-        ['1'] = self.reactToColSlide,
-        ['2'] = self.reactToColKill,
+        ['B'] = self.reactToColSlide,
+        ['K'] = self.reactToColKill,
     }
     
     local NIL_HANDLER = self.reactToColTransition
