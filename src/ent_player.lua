@@ -27,7 +27,7 @@ function Player:new(o)
     o.pos = {x = 0, y = 0}
     o.vel = {x = 0, y = 0}
     o.tmPos = {x = 1, y = 1}
-    o.respawnDest = {x = 400, y = 500, sx = 1, sy = 1, reset = true}
+    o.respawnDest = {x = 400, y = 500, sx = 1, sy = 1, gravFlip = false, reset = true}
     o.teleportDest = o.respawnDest -- nil if shouldn't get teleported
 
     -- Controls
@@ -268,6 +268,12 @@ function Player:reactToColKill(dPos, tFinal, isVert, tile)
     self:reactToColIgnore(dPos, tFinal, isVert, tile)
 end
 
+function Player:reactToColSetRespawn(dPos, tFinal, isVert, tile)
+
+
+    self:reactToColIgnore(dPos, tFinal, isVert, tile)
+end
+
 function Player:reactToColTransition(dPos, tFinal, isVert, tile)
     local px, py = self.pos.x, self.pos.y
     local pw, ph = self.spriteSizeW, self.spriteSizeH
@@ -304,7 +310,7 @@ function Player:reactToCol(tilemap, dPos, tFinal, isVert, tilePos)
     local TILE_HANDLERS = {
         ['B'] = self.reactToColSlide,
         ['K'] = self.reactToColKill,
-        ['R'] = self.reactToColIgnore, -- SET RESPAWN 
+        ['R'] = self.reactToColSetRespawn, -- SET RESPAWN 
     }
     
     local NIL_HANDLER = self.reactToColTransition

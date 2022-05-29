@@ -55,10 +55,13 @@ function State_Game:draw()
     self.fadeExit:draw()
 end
 
-function State_Game:testScrSwitchTeleport()
+function State_Game:testTeleport()
     local tdest = self.player.teleportDest
     if tdest ~= nil then
-        if tdest.reset then self.player = Player:new() end
+        if tdest.reset then 
+            self.player = Player:new()
+            self.player.gravFlip = tdest.gravFlip or false
+        end
 
         self.player.pos = {x = tdest.x, y = tdest.y}
         self:switchScreen(tdest.sx, tdest.sy)
@@ -66,15 +69,10 @@ function State_Game:testScrSwitchTeleport()
     end
 end
 
-function State_Game:testScrSwitch()
-    return self:testScrSwitchTeleport() --or self:testScrSwitchOOB()
-end
-
 function State_Game:updateNormal(dt)
     local newState = nil
 
-    -- Screen switch test
-    self:testScrSwitch()
+    self:testTeleport()
 
     --Run updates on all oll objects in all layers
     for _,sceneObjs in ipairs(self.scene) do
