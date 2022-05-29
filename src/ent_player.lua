@@ -173,6 +173,7 @@ local function isTileBlocking(tile)
         ['0'] = false,
         ['B'] = true,
         ['K'] = false,
+        ['R'] = false,
     }
     
     if tile == nil then return true end
@@ -303,6 +304,7 @@ function Player:reactToCol(tilemap, dPos, tFinal, isVert, tilePos)
     local TILE_HANDLERS = {
         ['B'] = self.reactToColSlide,
         ['K'] = self.reactToColKill,
+        ['R'] = self.reactToColIgnore, -- SET RESPAWN 
     }
     
     local NIL_HANDLER = self.reactToColTransition

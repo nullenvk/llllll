@@ -1,7 +1,7 @@
 require('src.ent_sprite')
 
 --local TILETYPE_NUM = 2
-local TILETYPES = {"B", "K"}
+local TILETYPES = {"B", "K", "R"}
 
 Tiles = GameObj:new({dat = nil, colDat = nil, textures = nil})
 
@@ -68,6 +68,24 @@ function Tiles:setColorByScreen()
     love.graphics.setColor(SCR_COLORS[i])
 end
 
+function Tiles:setTileColor(t)
+    local UNCOLORED_TILES = {"R"}
+
+    local uncolored = false
+    for _,v in pairs(UNCOLORED_TILES) do
+        if v == t then 
+            uncolored = true
+            break
+        end
+    end
+
+    if uncolored then
+        love.graphics.setColor(1,1,1,1)
+    else
+        self:setColorByScreen()
+    end
+end
+
 function Tiles:drawTile(tx, ty)
     local tile_w = 800 / TILESCREEN_W
     local tile_h = 600 / TILESCREEN_H
@@ -81,7 +99,6 @@ function Tiles:drawTile(tx, ty)
         return tile == self.dat[tx + ox][ty + oy]
     end
 
-    love.graphics.rectangle("fill", (tx-1)*tile_w, (ty-1)*tile_h, tile_w, tile_h)
     if self.textures[tile] == nil then return end
 
     local qnum = 1
@@ -92,12 +109,12 @@ function Tiles:drawTile(tx, ty)
 
     local tex = Tiles.textures[tile]
     local x, y = (tx-1) * tile_w, (ty-1) * tile_h
+    
+    self:setTileColor(tile)
     love.graphics.draw(tex.texture, tex.quads[qnum], x, y)
 end
 
 function Tiles:draw()
-    self:setColorByScreen()
-
     for x=1,TILESCREEN_W do
         for y=1,TILESCREEN_H do
             if self.dat[x][y] ~= "0" then self:drawTile(x, y) end
