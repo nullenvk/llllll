@@ -20,6 +20,9 @@ function Player:new(o)
     setmetatable(o, self)
     self.__index = self
 
+    o.tilemap = nil 
+    o.tmPos = {x = 1, y = 1}
+
     o.timer = 0
     o.physTimer = 0
     o.flipTimer = 0
@@ -27,7 +30,7 @@ function Player:new(o)
 
     o.pos = {x = 0, y = 0}
     o.vel = {x = 0, y = 0}
-    o.tmPos = {x = 1, y = 1}
+
     o.respawnDest = {x = 400, y = 500, sx = 1, sy = 1, gravFlip = false, reset = true}
     o.teleportDest = o.respawnDest -- nil if shouldn't get teleported
 
@@ -168,19 +171,19 @@ local function colTestNarrow(r1, r2, dPos)
     return true, timeStart, vNormal
 end
 
-local function isTileBlocking(tile)
+function Player:isTileBlocking(tile)
     if tile == nil then return true end
     if tile == '0' then return false end
 
     return TILETYPES_DAT[tile].blocking or false
 end
 
-local function isTileEmpty(tilemap, tx, ty, normVec)
-    local tdatx = tilemap.dat[tx + normVec.x]
+function Player:isTileEmpty(tx, ty, normVec)
+    local tdatx = self.tilemap.dat[tx + normVec.x]
     if tdatx == nil then return true end
 
     local tdat = tdatx[ty + normVec.y]
-    return (not isTileBlocking(tdat))
+    return (not self:isTileBlocking(tdat))
 end
 
 -- Collision detection broad phase
@@ -197,7 +200,7 @@ function Player:genColTileBounds(dPos)
     return {x1 = txMin, x2 = txMax, y1 = tyMin, y2 = tyMax}
 end
 
-function Player:testCollisionSweep(tilemap, dPos)
+function Player:testCollisionSweep(dPos)
     local plyRect = {x = self.pos.x, y = self.pos.y, w = self.spriteSizeW, h = self.spriteSizeH}
 
     local tileW, tileH = 800 / TILESCREEN_W, 600 / TILESCREEN_H
@@ -215,19 +218,19 @@ function Player:testCollisionSweep(tilemap, dPos)
             local notEmpty = true
             local tDat = nil
             
-            if tilemap.dat[tx] ~= nil then 
-                tDat = tilemap.dat[tx][ty]
-                notEmpty = (tilemap.dat[tx][ty] ~= "0")
+            if self.tilemap.dat[tx] ~= nil then 
+                tDat = self.tilemap.dat[tx][ty]
+                notEmpty = (self.tilemap.dat[tx][ty] ~= "0")
             else
                 tDat = nil
             end
 
-            if didHit and notEmpty and isTileEmpty(tilemap, tx, ty, normVec) then
+            if didHit and notEmpty and self:isTileEmpty(tx, ty, normVec) then
                 local hitObj = {
                     isHorz = (normVec.x ~= 0),
                     time = whenHit,
                     tile = {x = tx, y = ty},
-                    doesBlock = isTileBlocking(tDat)
+                    doesBlock = self:isTileBlocking(tDat)
                 }
 
                 table.insert(allHits, hitObj)
@@ -300,7 +303,7 @@ function Player:reactToColBounce(dPos, tFinal, isVert, tile)
     self.pos = newPos
 end
 
-function Player:reactToCol(tilemap, dPos, tFinal, isVert, tile)
+function Player:reactToCol(dPos, tFinal, isVert, tile)
     local TILE_HANDLERS = {
         ['slide'] = self.reactToColSlide,
         ['kill'] = self.reactToColKill,
@@ -309,8 +312,8 @@ function Player:reactToCol(tilemap, dPos, tFinal, isVert, tile)
     
     local NIL_HANDLER = self.reactToColTransition
 
-    if tilemap.dat[tile.x] ~= nil then
-        tile.type = tilemap.dat[tile.x][tile.y]
+    if self.tilemap.dat[tile.x] ~= nil then
+        tile.type = self.tilemap.dat[tile.x][tile.y]
     end
 
     local handler
@@ -328,12 +331,12 @@ function Player:reactToCol(tilemap, dPos, tFinal, isVert, tile)
     end
 end
 
-function Player:runColTests(tilemap, dPos)
+function Player:runColTests(dPos)
     -- Prematurely break further physics calculations once following conditions occur
     if dPos.x == 0 and dPos.y == 0 then return 1 end
     if self.teleportDest ~= nil then return 1 end
 
-    local hitList = self:testCollisionSweep(tilemap, dPos)
+    local hitList = self:testCollisionSweep(dPos)
 
     local tHorz, tVert = nil, nil
     local hitTile = {nil, nil}
@@ -344,7 +347,7 @@ function Player:runColTests(tilemap, dPos)
         if tHorz ~= nil and tVert ~= nil then break end
 
         if tHorz == nil and tVert == nil and not v.doesBlock then
-            self:reactToCol(tilemap, dPos, v.time - elapsed, (not v.isHorz), v.tile)
+            self:reactToCol(dPos, v.time - elapsed, (not v.isHorz), v.tile)
             elapsed = v.time
         end
         
@@ -369,11 +372,11 @@ function Player:runColTests(tilemap, dPos)
     local neglDiff = PHYS_UPDATE_FREQ*2 -- Neglectibly small difference, TODO: Revise later
 
     if tVert < tHorz + neglDiff and tVert < 1 then
-        self:reactToCol(tilemap, dPos, tFinal - elapsed, true, hitTile[2])
+        self:reactToCol(dPos, tFinal - elapsed, true, hitTile[2])
     end
 
     if tHorz < tVert + neglDiff and tHorz < 1 then
-        self:reactToCol(tilemap, dPos, tFinal - elapsed, false, hitTile[1])
+        self:reactToCol(dPos, tFinal - elapsed, false, hitTile[1])
     end
 
     if tFinal >= 1 then self:reactToColIgnore(dPos, tFinal, false, '0') end
@@ -381,7 +384,7 @@ function Player:runColTests(tilemap, dPos)
     return tFinal 
 end
 
-function Player:updatePhys(tilemap)
+function Player:updatePhys()
     -- Don't update pos if dead
     if self.isDead then return end
 
@@ -408,18 +411,18 @@ function Player:updatePhys(tilemap)
             y = self.vel.y * PHYS_UPDATE_FREQ * tTotal
         }
 
-        local tSingle = self:runColTests(tilemap, dPos)
+        local tSingle = self:runColTests(dPos)
         tTotal = tTotal - tTotal * tSingle
     end
 end
 
-function Player:testOnGround(tilemap)
+function Player:testOnGround()
     local function isHitlistBlocking(l)
         for _,v in ipairs(l) do
             local tp = v.tile
-            local tileX = tilemap.dat[tp.x]
+            local tileX = self.tilemap.dat[tp.x]
             if tileX ~= nil then
-                local tile = tilemap.dat[tp.x][tp.y]
+                local tile = self.tilemap.dat[tp.x][tp.y]
 
                 if v.doesBlock and tile ~= nil then return true end
             end
@@ -428,8 +431,8 @@ function Player:testOnGround(tilemap)
         return false
     end
 
-    local testTopList = self:testCollisionSweep(tilemap, {x = 0, y = 3})
-    local testBottomList = self:testCollisionSweep(tilemap, {x = 0, y = -3})
+    local testTopList = self:testCollisionSweep({x = 0, y = 3})
+    local testBottomList = self:testCollisionSweep({x = 0, y = -3})
 
     self.isOnGround = isHitlistBlocking(testTopList) or isHitlistBlocking(testBottomList)
 end

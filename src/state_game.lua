@@ -17,12 +17,14 @@ function State_Game:switchScreen(sx, sy)
     self.scene = {}
     for _=1,LAYERNUM_NUM do table.insert(self.scene, {}) end
 
+
     self.player.tmPos.x = sx
     self.player.tmPos.y = sy
+    self.player.tilemap = Tiles:new(nil, self.tmap, self.player.tmPos.x, self.player.tmPos.y)
 
     self.scene[LAYERNUM_BACKGROUND]["starfield"] = StarfieldEffect:new(nil, true)
     self.scene[LAYERNUM_MAP]["player"] = self.player
-    self.scene[LAYERNUM_MAP]["tiles"] = Tiles:new(nil, self.tmap, self.player.tmPos.x, self.player.tmPos.y)
+    self.scene[LAYERNUM_MAP]["tiles"] = self.player.tilemap
 end
 
 function State_Game:init()
@@ -31,9 +33,7 @@ function State_Game:init()
     Player.preload()
     Tiles.preload()
 
-
     self.player = Player:new()
-    self.player.tmPos = {x = 1, y = 1}
     self:switchScreen(1,1)
 
     self.fadeIntro = FadeEffect:new(nil, true)
@@ -87,14 +87,12 @@ function State_Game:updateNormal(dt)
     end
 
     -- Physics
-    local mapTiles = self.scene[LAYERNUM_MAP]["tiles"]
-
     while self.player.physTimer > PHYS_UPDATE_FREQ do
-        self.player:updatePhys(mapTiles)
+        self.player:updatePhys()
         self.player.physTimer = self.player.physTimer - PHYS_UPDATE_FREQ
     end
 
-    self.player:testOnGround(mapTiles)
+    self.player:testOnGround()
 
     -- Inputs
     if love.keyboard.isDown("space") then self.player:doFlip() end
