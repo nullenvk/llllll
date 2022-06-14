@@ -1,4 +1,5 @@
 require("src.ent_sprite")
+require("src.ent_tiles")
 
 PHYS_UPDATE_FREQ = 1 / 120
 local SPEED_MAX = 800
@@ -167,17 +168,11 @@ local function colTestNarrow(r1, r2, dPos)
     return true, timeStart, vNormal
 end
 
--- TODO: This is ugly and may cause problems in the future
 local function isTileBlocking(tile)
-    local TILE_RET = {
-        ['0'] = false,
-        ['B'] = true,
-        ['K'] = false,
-        ['R'] = false,
-    }
-    
     if tile == nil then return true end
-    return TILE_RET[tile] 
+    if tile == '0' then return false end
+
+    return TILETYPES_DAT[tile].blocking or false
 end
 
 local function isTileEmpty(tilemap, tx, ty, normVec)
@@ -185,8 +180,7 @@ local function isTileEmpty(tilemap, tx, ty, normVec)
     if tdatx == nil then return true end
 
     local tdat = tdatx[ty + normVec.y]
-    --return tdat == "0" or tdat == nil
-    return (not isTileBlocking(tdat)) --and tdat ~= nil
+    return (not isTileBlocking(tdat))
 end
 
 -- Collision detection broad phase
@@ -308,9 +302,9 @@ end
 
 function Player:reactToCol(tilemap, dPos, tFinal, isVert, tilePos)
     local TILE_HANDLERS = {
-        ['B'] = self.reactToColSlide,
-        ['K'] = self.reactToColKill,
-        ['R'] = self.reactToColSetRespawn, -- SET RESPAWN 
+        ['slide'] = self.reactToColSlide,
+        ['kill'] = self.reactToColKill,
+        ['setRespawn'] = self.reactToColSetRespawn, -- SET RESPAWN 
     }
     
     local NIL_HANDLER = self.reactToColTransition
@@ -320,8 +314,13 @@ function Player:reactToCol(tilemap, dPos, tFinal, isVert, tilePos)
         tile = tilemap.dat[tilePos.x][tilePos.y]
     end
 
-    local handler = TILE_HANDLERS[tile]
-    if tile == nil then handler = NIL_HANDLER end
+    local handler
+
+    if tile == nil then 
+        handler = NIL_HANDLER 
+    else
+        handler = TILE_HANDLERS[ TILETYPES_DAT[tile].collisionType ]
+    end
 
     if handler ~= nil then 
         handler(self, dPos, tFinal, isVert, tile)
