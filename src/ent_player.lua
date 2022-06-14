@@ -300,7 +300,7 @@ function Player:reactToColBounce(dPos, tFinal, isVert, tile)
     self.pos = newPos
 end
 
-function Player:reactToCol(tilemap, dPos, tFinal, isVert, tilePos)
+function Player:reactToCol(tilemap, dPos, tFinal, isVert, tile)
     local TILE_HANDLERS = {
         ['slide'] = self.reactToColSlide,
         ['kill'] = self.reactToColKill,
@@ -309,17 +309,16 @@ function Player:reactToCol(tilemap, dPos, tFinal, isVert, tilePos)
     
     local NIL_HANDLER = self.reactToColTransition
 
-    local tile = nil
-    if tilemap.dat[tilePos.x] ~= nil then
-        tile = tilemap.dat[tilePos.x][tilePos.y]
+    if tilemap.dat[tile.x] ~= nil then
+        tile.type = tilemap.dat[tile.x][tile.y]
     end
 
     local handler
 
-    if tile == nil then 
+    if tile.type == nil then
         handler = NIL_HANDLER 
     else
-        handler = TILE_HANDLERS[ TILETYPES_DAT[tile].collisionType ]
+        handler = TILE_HANDLERS[ TILETYPES_DAT[tile.type].collisionType ]
     end
 
     if handler ~= nil then 
