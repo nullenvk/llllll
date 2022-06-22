@@ -2,6 +2,8 @@ require("src.ent_sprite")
 require("src.ent_tiles")
 
 PHYS_UPDATE_FREQ = 1 / 120
+local PHYS_NEGL_DIFF = PHYS_UPDATE_FREQ * 2 -- Neglectibly small delay (measures in 1/s)
+
 local SPEED_MAX = 800
 local SIDE_ACCEL = 5000
 local GRAV_ACCEL = 3000
@@ -383,13 +385,11 @@ function Player:runColTests(dPos)
     
     local tFinal = math.min(tHorz, tVert, 1)
     
-    local neglDiff = PHYS_UPDATE_FREQ*2 -- Neglectibly small difference, TODO: Revise later
-
-    if tVert < tHorz + neglDiff and tVert < 1 then
+    if tVert < tHorz + PHYS_NEGL_DIFF and tVert < 1 then
         self:reactToCol(dPos, tFinal - elapsed, true, hitTile[2])
     end
 
-    if tHorz < tVert + neglDiff and tHorz < 1 then
+    if tHorz < tVert + PHYS_NEGL_DIFF and tHorz < 1 then
         self:reactToCol(dPos, tFinal - elapsed, false, hitTile[1])
     end
 
