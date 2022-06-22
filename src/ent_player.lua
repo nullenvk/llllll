@@ -266,7 +266,21 @@ function Player:reactToColKill(dPos, tFinal, isVert, tile)
 end
 
 function Player:reactToColSetRespawn(dPos, tFinal, isVert, tile)
+    local pw, ph = self.spriteSizeW, self.spriteSizeH
+    local tw, th = 800 / TILESCREEN_W, 600 / TILESCREEN_H
 
+    local topBlocked = not self:isTileEmpty(tile.x, tile.y, {x = 0, y = -1})
+
+    local rDest = {x = (tile.x - 1) * tw, y = tile.y * th - ph, 
+                    sx = self.tmPos.x, sy = self.tmPos.y, 
+                    gravFlip = true, reset = true}
+
+    if topBlocked then
+        rDest.gravFlip = false
+        rDest.y = rDest.y + th
+    end
+
+    self.respawnDest = rDest
 
     self:reactToColIgnore(dPos, tFinal, isVert, tile)
 end

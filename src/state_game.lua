@@ -57,9 +57,12 @@ end
 
 function State_Game:testTeleport()
     local tdest = self.player.teleportDest
+    local rdest = self.player.respawnDest
+
     if tdest ~= nil then
         if tdest.reset then 
             self.player = Player:new()
+            self.player.respawnDest = rdest -- Make respawn points persist between deaths
             self.player.gravFlip = tdest.gravFlip or false
         end
 
