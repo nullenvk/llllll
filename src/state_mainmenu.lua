@@ -7,7 +7,7 @@ State_MainMenu = GameState:new({})
 local MENUFONT_SIZE = 30
 local MENU_TEXTS = {
     "<Start>",
-    "<Options>",
+    --"<Options>",
     "<Quit>",
 }
 
@@ -42,12 +42,9 @@ end
 
 local function processSelOption()
     if menuState.curMainOption == 1 then
-        -- Launch game here
         newState = State_Game
 
-    -- debug
     elseif menuState.curMainOption == 2 then
-    elseif menuState.curMainOption == 3 then
         love.event.quit()
     end
 
